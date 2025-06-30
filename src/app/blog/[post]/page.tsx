@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Header from "../../components/Header";
 import clientPromise from "../../../lib/mongodb";
-import BlogPostView from "./BlogPostView";
+import BlogPostView from "../BlogPostView";
 
 async function getPostByPost(post: string) {
   const client = await clientPromise;
