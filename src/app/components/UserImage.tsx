@@ -1,5 +1,4 @@
 import React from "react";
-import Image from "next/image";
 
 interface UserImageProps {
   src?: string;
@@ -14,7 +13,7 @@ export default function UserImage({ src, alt = "User", size = 48, style }: UserI
     setImgSrc(src || "/profile.png");
   }, [src]);
   return (
-    <Image
+    <img
       src={imgSrc}
       alt={alt}
       width={size}
@@ -29,7 +28,7 @@ export default function UserImage({ src, alt = "User", size = 48, style }: UserI
         ...style,
       }}
       onError={() => setImgSrc("/profile.png")}
-      priority
+      loading="lazy"
     />
   );
 } 
