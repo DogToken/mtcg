@@ -17,6 +17,7 @@ export default function AdminDashboard() {
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [blockReg, setBlockReg] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -28,8 +29,21 @@ export default function AdminDashboard() {
         setUsers(data.users || []);
         setLoading(false);
       });
+      fetch("/api/admin/blockreg").then(res => res.json()).then(data => {
+        setBlockReg(data.blocked || false);
+      });
     }
   }, [status, session, router]);
+
+  const handleRemove = async (id: string) => {
+    await fetch(`/api/admin/users?id=${id}`, { method: 'DELETE' });
+    setUsers(users.filter(u => u._id !== id));
+  };
+
+  const handleToggleBlock = async () => {
+    await fetch('/api/admin/blockreg', { method: 'POST', body: JSON.stringify({ blocked: !blockReg }), headers: { 'Content-Type': 'application/json' } });
+    setBlockReg(!blockReg);
+  };
 
   if (status === "loading" || loading) {
     return <div style={{ color: '#5eead4', textAlign: 'center', marginTop: 80 }}>Loading...</div>;
@@ -49,6 +63,7 @@ export default function AdminDashboard() {
       <Header />
       <main style={{ width: '100%', maxWidth: 900, padding: '0 32px' }}>
         <h2 style={{ fontSize: 32, fontWeight: 700, marginBottom: 32 }}>Admin Dashboard</h2>
+        <button onClick={handleToggleBlock} style={{ marginBottom: 24, padding: '8px 18px', borderRadius: 8, background: blockReg ? '#ff4d4f' : '#5eead4', color: '#fff', fontWeight: 700, border: 'none', cursor: 'pointer' }}>{blockReg ? 'Unblock Registrations' : 'Block Registrations'}</button>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
           {users.map((user) => (
             <div key={user._id} style={{
@@ -78,6 +93,7 @@ export default function AdminDashboard() {
                 <div style={{ fontWeight: 700, fontSize: 18 }}>{user.name}</div>
                 <div style={{ color: '#b3b8c2', fontSize: 15 }}>{user.email}</div>
               </div>
+              <button onClick={() => handleRemove(user._id)} style={{ marginLeft: 'auto', background: '#ff4d4f', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 16px', fontWeight: 700, cursor: 'pointer' }}>Remove</button>
             </div>
           ))}
         </div>

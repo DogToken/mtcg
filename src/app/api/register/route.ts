@@ -8,7 +8,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Missing fields" }, { status: 400 });
   }
   const client = await clientPromise;
-  const users = client.db().collection("users");
+  const db = client.db();
+  const config = db.collection('config');
+  const regBlock = await config.findOne({ key: 'blockReg' });
+  if (regBlock?.value) {
+    return NextResponse.json({ error: "Registrations are currently blocked." }, { status: 403 });
+  }
+  const users = db.collection("users");
   const existing = await users.findOne({ email });
   if (existing) {
     return NextResponse.json({ error: "User already exists" }, { status: 400 });
