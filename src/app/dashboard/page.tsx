@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Header from "../components/Header";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
@@ -122,9 +123,11 @@ export default function DashboardPage() {
           flexDirection: 'column',
           alignItems: 'center',
         }}>
-          <img
-            src={session?.user?.image || "/public/avatar1.png"}
+          <Image
+            src={session?.user?.image || "/avatar1.png"}
             alt={session?.user?.name || "User"}
+            width={80}
+            height={80}
             style={{
               width: 80,
               height: 80,

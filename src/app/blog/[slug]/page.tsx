@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import Header from "../../components/Header";
 import clientPromise from "../../../lib/mongodb";
-import generateStaticParams from "./generateStaticParams";
 import Image from "next/image";
 
 async function getPostBySlug(slug: string) {
@@ -61,6 +60,4 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
       </main>
     </div>
   );
-}
-
-export { generateStaticParams }; 
+} 

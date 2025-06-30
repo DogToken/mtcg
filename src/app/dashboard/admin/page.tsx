@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import Header from "../../components/Header";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 type User = {
   _id: string;
@@ -59,9 +60,11 @@ export default function AdminDashboard() {
               alignItems: 'center',
               gap: 20,
             }}>
-              <img
-                src={user.image || "/public/avatar1.png"}
+              <Image
+                src={user.image || "/avatar1.png"}
                 alt={user.name}
+                width={48}
+                height={48}
                 style={{
                   width: 48,
                   height: 48,
