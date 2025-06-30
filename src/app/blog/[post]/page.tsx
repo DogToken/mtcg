@@ -10,15 +10,10 @@ async function getPostByPost(post: string) {
   return result;
 }
 
-type BlogPostPageProps = {
-  params: {
-    post: string;
-  };
-};
-
-export default async function BlogPostPage({ params }: BlogPostPageProps) {
-  const post = await getPostByPost(params.post);
-  if (!post) return notFound();
+export default async function BlogPostPage({ params }: { params: Promise<{ post: string }> }) {
+  const { post } = await params;
+  const blogPost = await getPostByPost(post);
+  if (!blogPost) return notFound();
 
   return (
     <div style={{
@@ -42,8 +37,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 18 }}>
             <Image
-              src={post.author?.image || "/avatar1.png"}
-              alt={post.author?.name || "User"}
+              src={blogPost.author?.image || "/avatar1.png"}
+              alt={blogPost.author?.name || "User"}
               width={56}
               height={56}
               style={{
@@ -56,12 +51,12 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               }}
             />
             <div>
-              <div style={{ color: '#fff', fontWeight: 600, fontSize: 17 }}>{post.author?.name || "User"}</div>
-              <div style={{ color: '#5eead4', fontSize: 14 }}>{post.date ? new Date(post.date).toLocaleDateString() : ""}</div>
+              <div style={{ color: '#fff', fontWeight: 600, fontSize: 17 }}>{blogPost.author?.name || "User"}</div>
+              <div style={{ color: '#5eead4', fontSize: 14 }}>{blogPost.date ? new Date(blogPost.date).toLocaleDateString() : ""}</div>
             </div>
           </div>
-          <h1 style={{ fontSize: 32, fontWeight: 800, marginBottom: 18 }}>{post.title}</h1>
-          <div style={{ color: '#b3b8c2', fontSize: 18, lineHeight: 1.7 }}>{post.content}</div>
+          <h1 style={{ fontSize: 32, fontWeight: 800, marginBottom: 18 }}>{blogPost.title}</h1>
+          <div style={{ color: '#b3b8c2', fontSize: 18, lineHeight: 1.7 }}>{blogPost.content}</div>
         </article>
       </main>
     </div>
