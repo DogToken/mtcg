@@ -84,4 +84,12 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
       </main>
     </div>
   );
+}
+
+export function generateStaticParams() {
+  return [
+    { slug: "first-post" },
+    { slug: "web3-tips" },
+    { slug: "community-art" },
+  ];
 } 
