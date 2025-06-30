@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
 import { useRouter } from "next/navigation";
 
@@ -10,7 +10,14 @@ export default function RegisterPage() {
   const [image, setImage] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [blocked, setBlocked] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    fetch('/api/admin/blockreg').then(res => res.json()).then(data => {
+      setBlocked(data.blocked);
+    });
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,47 +61,53 @@ export default function RegisterPage() {
           marginRight: 'auto',
         }}>
           <h2 style={{ fontSize: 28, fontWeight: 700, marginBottom: 24, textAlign: 'center' }}>Register</h2>
-          <form className="login-form" onSubmit={handleSubmit}>
-            <input
-              type="text"
-              placeholder="Name"
-              className="login-input"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              required
-            />
-            <input
-              type="email"
-              placeholder="Email"
-              className="login-input"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              className="login-input"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-            />
-            <input
-              type="text"
-              placeholder="Image URL (optional)"
-              className="login-input"
-              value={image}
-              onChange={e => setImage(e.target.value)}
-            />
-            <button
-              type="submit"
-              className="login-btn"
-            >
-              Register
-            </button>
-            {error && <div style={{ color: '#ff4d4f', marginTop: 12, textAlign: 'center' }}>{error}</div>}
-            {success && <div style={{ color: '#5eead4', marginTop: 12, textAlign: 'center' }}>{success}</div>}
-          </form>
+          {blocked ? (
+            <div style={{ color: '#ff4d4f', fontWeight: 600, fontSize: 18, textAlign: 'center', margin: '32px 0' }}>
+              Registrations are currently blocked by the admin.
+            </div>
+          ) : (
+            <form className="login-form" onSubmit={handleSubmit}>
+              <input
+                type="text"
+                placeholder="Name"
+                className="login-input"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                required
+              />
+              <input
+                type="email"
+                placeholder="Email"
+                className="login-input"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
+              />
+              <input
+                type="password"
+                placeholder="Password"
+                className="login-input"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                required
+              />
+              <input
+                type="text"
+                placeholder="Image URL (optional)"
+                className="login-input"
+                value={image}
+                onChange={e => setImage(e.target.value)}
+              />
+              <button
+                type="submit"
+                className="login-btn"
+              >
+                Register
+              </button>
+              {error && <div style={{ color: '#ff4d4f', marginTop: 12, textAlign: 'center' }}>{error}</div>}
+              {success && <div style={{ color: '#5eead4', marginTop: 12, textAlign: 'center' }}>{success}</div>}
+            </form>
+          )}
         </section>
       </main>
     </div>

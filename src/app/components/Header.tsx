@@ -1,12 +1,31 @@
 'use client';
-import React from "react";
+import React, { useRef, useState } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
+import Image from "next/image";
 
 const navItems = ["Home", "Blog", "Videos", "Art", "Info", "Ecosystem"];
 
 export default function Header() {
   const { data: session } = useSession();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  React.useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    if (dropdownOpen) {
+      document.addEventListener("mousedown", handleClick);
+    } else {
+      document.removeEventListener("mousedown", handleClick);
+    }
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [dropdownOpen]);
+
   return (
     <>
       <style>{`
@@ -54,7 +73,7 @@ export default function Header() {
             Community Group
           </div>
         </Link>
-        <nav style={{ display: 'flex', gap: 24 }}>
+        <nav style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
           {navItems.map((item) => (
             <Link
               key={item}
@@ -65,7 +84,66 @@ export default function Header() {
             </Link>
           ))}
           {session ? (
-            <button className="logout-link" onClick={() => signOut({ callbackUrl: "/login" })}>Logout</button>
+            <div style={{ position: 'relative' }} ref={dropdownRef}>
+              <button
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  padding: 0,
+                  cursor: 'pointer',
+                  borderRadius: '50%',
+                  outline: 'none',
+                }}
+                onClick={() => setDropdownOpen((v) => !v)}
+                aria-label="User menu"
+              >
+                <Image
+                  src={session.user?.image || "/avatar1.png"}
+                  alt={session.user?.name || "User"}
+                  width={40}
+                  height={40}
+                  style={{ borderRadius: '50%', border: '2px solid #5eead4', boxShadow: '0 0 8px #00ffff' }}
+                />
+              </button>
+              {dropdownOpen && (
+                <div style={{
+                  position: 'absolute',
+                  right: 0,
+                  top: 48,
+                  background: '#23272b',
+                  borderRadius: 12,
+                  boxShadow: '0 2px 16px 0 rgba(0,255,255,0.10)',
+                  minWidth: 180,
+                  zIndex: 100,
+                  padding: 8,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 0,
+                }}>
+                  <Link href="/dashboard" style={{ padding: '12px 18px', color: '#fff', textDecoration: 'none', fontWeight: 500, borderRadius: 8, transition: 'background 0.2s' }}>Dashboard</Link>
+                  {session.user?.email === "doggo@dogswap.xyz" && (
+                    <Link href="/dashboard/admin" style={{ padding: '12px 18px', color: '#fff', textDecoration: 'none', fontWeight: 500, borderRadius: 8, transition: 'background 0.2s' }}>Admin</Link>
+                  )}
+                  <Link href="/settings" style={{ padding: '12px 18px', color: '#fff', textDecoration: 'none', fontWeight: 500, borderRadius: 8, transition: 'background 0.2s' }}>Settings</Link>
+                  <button
+                    onClick={() => signOut({ callbackUrl: "/login" })}
+                    style={{
+                      padding: '12px 18px',
+                      color: '#ff4d4f',
+                      background: 'none',
+                      border: 'none',
+                      textAlign: 'left',
+                      fontWeight: 500,
+                      borderRadius: 8,
+                      cursor: 'pointer',
+                      transition: 'background 0.2s',
+                    }}
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
           ) : (
             <Link href="/login" className="nav-link">Login</Link>
           )}
