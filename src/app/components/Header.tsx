@@ -10,6 +10,11 @@ export default function Header() {
   const { data: session } = useSession();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [profileImgSrc, setProfileImgSrc] = useState<string | undefined>(session?.user?.image || "/profile.png");
+
+  React.useEffect(() => {
+    setProfileImgSrc(session?.user?.image || "/profile.png");
+  }, [session?.user?.image]);
 
   // Close dropdown on outside click
   React.useEffect(() => {
@@ -98,11 +103,12 @@ export default function Header() {
                 aria-label="User menu"
               >
                 <Image
-                  src={session.user?.image || "/avatar1.png"}
+                  src={profileImgSrc || "/profile.png"}
                   alt={session.user?.name || "User"}
                   width={40}
                   height={40}
                   style={{ borderRadius: '50%', border: '2px solid #5eead4', boxShadow: '0 0 8px #00ffff' }}
+                  onError={() => setProfileImgSrc("/profile.png")}
                 />
               </button>
               {dropdownOpen && (

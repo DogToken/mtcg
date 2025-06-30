@@ -12,6 +12,27 @@ type User = {
   image?: string;
 };
 
+function UserImage({ src, alt }: { src?: string; alt: string }) {
+  const [imgSrc, setImgSrc] = useState(src || "/profile.png");
+  return (
+    <Image
+      src={imgSrc}
+      alt={alt}
+      width={48}
+      height={48}
+      style={{
+        width: 48,
+        height: 48,
+        borderRadius: '50%',
+        objectFit: 'cover',
+        border: '2px solid #5eead4',
+        boxShadow: '0 0 8px #00ffff',
+      }}
+      onError={() => setImgSrc("/profile.png")}
+    />
+  );
+}
+
 export default function AdminDashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -75,20 +96,7 @@ export default function AdminDashboard() {
               alignItems: 'center',
               gap: 20,
             }}>
-              <Image
-                src={user.image || "/avatar1.png"}
-                alt={user.name}
-                width={48}
-                height={48}
-                style={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: '50%',
-                  objectFit: 'cover',
-                  border: '2px solid #5eead4',
-                  boxShadow: '0 0 8px #00ffff',
-                }}
-              />
+              <UserImage src={user.image} alt={user.name} />
               <div>
                 <div style={{ fontWeight: 700, fontSize: 18 }}>{user.name}</div>
                 <div style={{ color: '#b3b8c2', fontSize: 15 }}>{user.email}</div>

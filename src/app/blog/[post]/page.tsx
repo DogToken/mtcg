@@ -37,7 +37,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ post:
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 18 }}>
             <Image
-              src={blogPost.author?.image || "/avatar1.png"}
+              src={blogPost.author?.image || "/profile.png"}
               alt={blogPost.author?.name || "User"}
               width={56}
               height={56}
@@ -49,6 +49,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ post:
                 border: '2px solid #5eead4',
                 boxShadow: '0 0 8px #00ffff',
               }}
+              onError={(e) => { e.currentTarget.src = "/profile.png"; }}
             />
             <div>
               <div style={{ color: '#fff', fontWeight: 600, fontSize: 17 }}>{blogPost.author?.name || "User"}</div>
