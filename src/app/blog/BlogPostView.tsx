@@ -1,6 +1,6 @@
 'use client';
 import React from "react";
-import UserImage from "../../components/UserImage";
+import UserImage from "../components/UserImage";
 
 interface BlogPost {
   _id: string;
