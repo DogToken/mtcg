@@ -1,43 +1,16 @@
-import React from "react";
-import Header from "../../components/Header";
 import { notFound } from "next/navigation";
+import Header from "../../components/Header";
+import clientPromise from "../../../lib/mongodb";
 
-// Demo blog post data (should match blog/page.tsx)
-const posts = [
-  {
-    slug: "first-post",
-    title: "Welcome to the Community Blog!",
-    content: "This is our very first post. Stay tuned for more updates and stories from the community. We are excited to have you here!",
-    date: "2024-06-01",
-    author: {
-      name: "Alice",
-      image: "/public/avatar1.png",
-    },
-  },
-  {
-    slug: "web3-tips",
-    title: "Top 5 Web3 Tips for Beginners",
-    content: "Get started with Web3 and blockchain with these essential tips from our community experts. 1. Use a secure wallet. 2. Never share your seed phrase. 3. Double-check contract addresses. 4. Join our Discord for help. 5. Stay curious!",
-    date: "2024-06-02",
-    author: {
-      name: "Bob",
-      image: "/public/avatar2.png",
-    },
-  },
-  {
-    slug: "community-art",
-    title: "Showcasing Community Art",
-    content: "A look at some of the amazing art created by our talented members. Submit your own work to be featured in future posts!",
-    date: "2024-06-03",
-    author: {
-      name: "Charlie",
-      image: "/public/avatar3.png",
-    },
-  },
-];
+async function getPostBySlug(slug: string) {
+  const client = await clientPromise;
+  const db = client.db();
+  const post = await db.collection("posts").findOne({ slug });
+  return post;
+}
 
-export default function BlogPostPage({ params }: { params: { slug: string } }) {
-  const post = posts.find((p) => p.slug === params.slug);
+export default async function BlogPostPage({ params }: { params: { slug: string } }) {
+  const post = await getPostBySlug(params.slug);
   if (!post) return notFound();
 
   return (
@@ -62,8 +35,8 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 18 }}>
             <img
-              src={post.author.image}
-              alt={post.author.name}
+              src={post.author?.image || "/public/avatar1.png"}
+              alt={post.author?.name || "User"}
               style={{
                 width: 56,
                 height: 56,
@@ -74,8 +47,8 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
               }}
             />
             <div>
-              <div style={{ color: '#fff', fontWeight: 600, fontSize: 17 }}>{post.author.name}</div>
-              <div style={{ color: '#5eead4', fontSize: 14 }}>{new Date(post.date).toLocaleDateString()}</div>
+              <div style={{ color: '#fff', fontWeight: 600, fontSize: 17 }}>{post.author?.name || "User"}</div>
+              <div style={{ color: '#5eead4', fontSize: 14 }}>{post.date ? new Date(post.date).toLocaleDateString() : ""}</div>
             </div>
           </div>
           <h1 style={{ fontSize: 32, fontWeight: 800, marginBottom: 18 }}>{post.title}</h1>
@@ -86,10 +59,10 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
   );
 }
 
-export function generateStaticParams() {
-  return [
-    { slug: "first-post" },
-    { slug: "web3-tips" },
-    { slug: "community-art" },
-  ];
+export async function generateStaticParams() {
+  const client = await clientPromise;
+  const db = client.db();
+  type PostSlug = { slug: string };
+  const posts = await db.collection("posts").find({}, { projection: { slug: 1 } }).toArray() as unknown as PostSlug[];
+  return posts.map((post) => ({ slug: post.slug }));
 } 
