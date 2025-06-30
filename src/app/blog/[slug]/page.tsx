@@ -36,7 +36,11 @@ const posts = [
   },
 ];
 
-export default function BlogPostPage({ params }: { params: { slug: string } }) {
+export interface PageProps {
+  params: { slug: string };
+}
+
+export default function BlogPostPage({ params }: PageProps) {
   const post = posts.find((p) => p.slug === params.slug);
   if (!post) return notFound();
 
