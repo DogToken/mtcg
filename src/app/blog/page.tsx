@@ -37,7 +37,13 @@ const posts = [
   },
 ];
 
-export default function BlogPage() {
+type BlogPostPageProps = {
+  params: {
+    slug: string;
+  };
+};
+
+export default function BlogPage({ params }: BlogPostPageProps) {
   return (
     <div style={{
       minHeight: '100vh',
