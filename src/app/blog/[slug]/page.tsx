@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Header from "../../components/Header";
 import clientPromise from "../../../lib/mongodb";
+import generateStaticParams from "./generateStaticParams";
 
 async function getPostBySlug(slug: string) {
   const client = await clientPromise;
@@ -59,10 +60,4 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
   );
 }
 
-export async function generateStaticParams() {
-  const client = await clientPromise;
-  const db = client.db();
-  type PostSlug = { slug: string };
-  const posts = await db.collection("posts").find({}, { projection: { slug: 1 } }).toArray() as unknown as PostSlug[];
-  return posts.map((post) => ({ slug: post.slug }));
-} 
+export { generateStaticParams }; 
