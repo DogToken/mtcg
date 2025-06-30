@@ -4,7 +4,6 @@ import Header from "../components/Header";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link";
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
@@ -15,6 +14,7 @@ export default function DashboardPage() {
   const [body, setBody] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [selectedSection, setSelectedSection] = useState("Blog");
 
   React.useEffect(() => {
     if (status === "unauthenticated") {
@@ -88,11 +88,28 @@ export default function DashboardPage() {
           <div style={{ fontWeight: 700, fontSize: 22, marginBottom: 6 }}>{session?.user?.name}</div>
           <div style={{ color: '#b3b8c2', fontSize: 15, marginBottom: 18 }}>{session?.user?.email}</div>
           <nav style={{ display: 'flex', flexDirection: 'column', gap: 18, width: '100%', alignItems: 'center' }}>
-            <Link href="/blog" style={{ color: '#5eead4', fontWeight: 600, fontSize: 18, textDecoration: 'none' }}>Blog</Link>
-            <Link href="/videos" style={{ color: '#5eead4', fontWeight: 600, fontSize: 18, textDecoration: 'none' }}>Videos</Link>
-            <Link href="/art" style={{ color: '#5eead4', fontWeight: 600, fontSize: 18, textDecoration: 'none' }}>Art</Link>
-            <Link href="/info" style={{ color: '#5eead4', fontWeight: 600, fontSize: 18, textDecoration: 'none' }}>Info</Link>
-            <Link href="/ecosystem" style={{ color: '#5eead4', fontWeight: 600, fontSize: 18, textDecoration: 'none' }}>Ecosystem</Link>
+            {['Blog', 'Videos', 'Art', 'Info', 'Ecosystem'].map(section => (
+              <button
+                key={section}
+                onClick={() => setSelectedSection(section)}
+                style={{
+                  color: selectedSection === section ? '#fff' : '#5eead4',
+                  background: selectedSection === section ? '#23272b' : 'none',
+                  fontWeight: 600,
+                  fontSize: 18,
+                  textDecoration: 'none',
+                  border: 'none',
+                  borderRadius: 8,
+                  padding: '8px 0',
+                  cursor: 'pointer',
+                  width: '100%',
+                  marginBottom: 2,
+                  transition: 'background 0.2s, color 0.2s',
+                }}
+              >
+                {section}
+              </button>
+            ))}
             <button
               onClick={() => signOut({ callbackUrl: "/login" })}
               style={{
@@ -116,55 +133,116 @@ export default function DashboardPage() {
         </aside>
         {/* Main Content */}
         <main style={{ flex: 1, maxWidth: 900, padding: '40px 32px' }}>
-          {/* Blog Post Form */}
-          <section style={{
-            background: 'rgba(34, 38, 44, 0.95)',
-            borderRadius: 16,
-            padding: 32,
-            boxShadow: '0 2px 16px 0 rgba(0,255,255,0.06)',
-            marginBottom: 32,
-            maxWidth: 600,
-            marginLeft: 'auto',
-            marginRight: 'auto',
-          }}>
-            <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 18 }}>Post a Blog</h2>
-            <form className="login-form" onSubmit={handlePost}>
-              <input
-                type="text"
-                placeholder="Title"
-                className="login-input"
-                value={title}
-                onChange={e => setTitle(e.target.value)}
-                required
-              />
-              <input
-                type="text"
-                placeholder="Tags (comma separated)"
-                className="login-input"
-                value={tags}
-                onChange={e => setTags(e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Slug (unique, e.g. my-first-post)"
-                className="login-input"
-                value={slug}
-                onChange={e => setSlug(e.target.value)}
-                required
-              />
-              <textarea
-                placeholder="Body"
-                className="login-input"
-                style={{ minHeight: 120, resize: 'vertical' }}
-                value={body}
-                onChange={e => setBody(e.target.value)}
-                required
-              />
-              <button type="submit" className="login-btn">Post</button>
-              {error && <div style={{ color: '#ff4d4f', marginTop: 12, textAlign: 'center' }}>{error}</div>}
-              {success && <div style={{ color: '#5eead4', marginTop: 12, textAlign: 'center' }}>{success}</div>}
-            </form>
-          </section>
+          {selectedSection === 'Blog' && (
+            <section style={{
+              background: 'rgba(34, 38, 44, 0.95)',
+              borderRadius: 16,
+              padding: 32,
+              boxShadow: '0 2px 16px 0 rgba(0,255,255,0.06)',
+              marginBottom: 32,
+              maxWidth: 600,
+              marginLeft: 'auto',
+              marginRight: 'auto',
+            }}>
+              <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 18 }}>Post a Blog</h2>
+              <form className="login-form" onSubmit={handlePost}>
+                <input
+                  type="text"
+                  placeholder="Title"
+                  className="login-input"
+                  value={title}
+                  onChange={e => setTitle(e.target.value)}
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="Tags (comma separated)"
+                  className="login-input"
+                  value={tags}
+                  onChange={e => setTags(e.target.value)}
+                />
+                <input
+                  type="text"
+                  placeholder="Slug (unique, e.g. my-first-post)"
+                  className="login-input"
+                  value={slug}
+                  onChange={e => setSlug(e.target.value)}
+                  required
+                />
+                <textarea
+                  placeholder="Body"
+                  className="login-input"
+                  style={{ minHeight: 120, resize: 'vertical' }}
+                  value={body}
+                  onChange={e => setBody(e.target.value)}
+                  required
+                />
+                <button type="submit" className="login-btn">Post</button>
+                {error && <div style={{ color: '#ff4d4f', marginTop: 12, textAlign: 'center' }}>{error}</div>}
+                {success && <div style={{ color: '#5eead4', marginTop: 12, textAlign: 'center' }}>{success}</div>}
+              </form>
+            </section>
+          )}
+          {selectedSection === 'Videos' && (
+            <section style={{
+              background: 'rgba(34, 38, 44, 0.95)',
+              borderRadius: 16,
+              padding: 32,
+              boxShadow: '0 2px 16px 0 rgba(0,255,255,0.06)',
+              marginBottom: 32,
+              maxWidth: 600,
+              marginLeft: 'auto',
+              marginRight: 'auto',
+            }}>
+              <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 18 }}>Post a Video</h2>
+              <div style={{ color: '#b3b8c2', fontSize: 16 }}>Video upload form coming soon...</div>
+            </section>
+          )}
+          {selectedSection === 'Art' && (
+            <section style={{
+              background: 'rgba(34, 38, 44, 0.95)',
+              borderRadius: 16,
+              padding: 32,
+              boxShadow: '0 2px 16px 0 rgba(0,255,255,0.06)',
+              marginBottom: 32,
+              maxWidth: 600,
+              marginLeft: 'auto',
+              marginRight: 'auto',
+            }}>
+              <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 18 }}>Post Art</h2>
+              <div style={{ color: '#b3b8c2', fontSize: 16 }}>Art upload form coming soon...</div>
+            </section>
+          )}
+          {selectedSection === 'Info' && (
+            <section style={{
+              background: 'rgba(34, 38, 44, 0.95)',
+              borderRadius: 16,
+              padding: 32,
+              boxShadow: '0 2px 16px 0 rgba(0,255,255,0.06)',
+              marginBottom: 32,
+              maxWidth: 600,
+              marginLeft: 'auto',
+              marginRight: 'auto',
+            }}>
+              <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 18 }}>Post Info</h2>
+              <div style={{ color: '#b3b8c2', fontSize: 16 }}>Info post form coming soon...</div>
+            </section>
+          )}
+          {selectedSection === 'Ecosystem' && (
+            <section style={{
+              background: 'rgba(34, 38, 44, 0.95)',
+              borderRadius: 16,
+              padding: 32,
+              boxShadow: '0 2px 16px 0 rgba(0,255,255,0.06)',
+              marginBottom: 32,
+              maxWidth: 600,
+              marginLeft: 'auto',
+              marginRight: 'auto',
+            }}>
+              <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 18 }}>Post Ecosystem Content</h2>
+              <div style={{ color: '#b3b8c2', fontSize: 16 }}>Ecosystem post form coming soon...</div>
+            </section>
+          )}
         </main>
       </div>
     </div>
