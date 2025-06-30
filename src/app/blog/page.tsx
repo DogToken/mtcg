@@ -1,6 +1,7 @@
 import React from "react";
 import Header from "../components/Header";
 import Link from "next/link";
+import Image from "next/image";
 
 // Demo blog post data
 const posts = [
@@ -70,17 +71,18 @@ export default function BlogPage() {
                 transition: 'box-shadow 0.2s',
               }}
             >
-              <img
+              <Image
                 src={post.author.image}
                 alt={post.author.name}
+                width={64}
+                height={64}
                 style={{
-                  width: 64,
-                  height: 64,
                   borderRadius: '50%',
                   objectFit: 'cover',
                   border: '2px solid #5eead4',
                   boxShadow: '0 0 8px #00ffff',
                 }}
+                priority
               />
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6 }}>

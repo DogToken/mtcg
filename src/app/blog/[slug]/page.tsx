@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Header from "../../components/Header";
 import clientPromise from "../../../lib/mongodb";
 import generateStaticParams from "./generateStaticParams";
+import Image from "next/image";
 
 async function getPostBySlug(slug: string) {
   const client = await clientPromise;
@@ -35,9 +36,11 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
           marginBottom: 32,
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 18 }}>
-            <img
-              src={post.author?.image || "/public/avatar1.png"}
+            <Image
+              src={post.author?.image || "/avatar1.png"}
               alt={post.author?.name || "User"}
+              width={56}
+              height={56}
               style={{
                 width: 56,
                 height: 56,
