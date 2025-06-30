@@ -2,6 +2,8 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import clientPromise from "./mongodb";
 import { compare } from "bcryptjs";
+import type { Session } from "next-auth";
+import type { JWT } from "next-auth/jwt";
 
 export const authOptions = {
   adapter: MongoDBAdapter(clientPromise),
@@ -28,6 +30,25 @@ export const authOptions = {
   ],
   session: {
     strategy: 'jwt' as const,
+  },
+  callbacks: {
+    async session({ session, token, user }: { session: Session, token: JWT, user?: unknown }) {
+      if (session.user) {
+        if (token && typeof token === 'object' && 'image' in token && typeof token.image === 'string') {
+          session.user.image = token.image;
+        }
+        if (user && typeof user === 'object' && 'image' in user && typeof (user as { image?: unknown }).image === 'string') {
+          session.user.image = (user as { image: string }).image;
+        }
+      }
+      return session;
+    },
+    async jwt({ token, user }: { token: JWT, user?: unknown }) {
+      if (user && typeof user === 'object' && 'image' in user && typeof (user as { image?: unknown }).image === 'string') {
+        token.image = (user as { image: string }).image;
+      }
+      return token;
+    },
   },
   pages: {
     signIn: "/login",
