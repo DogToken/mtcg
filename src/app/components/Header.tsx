@@ -2,7 +2,7 @@
 import React, { useRef, useState } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import Image from "next/image";
+import UserImage from "./UserImage";
 
 const navItems = ["Home", "Blog", "Videos", "Art", "Info", "Ecosystem"];
 
@@ -102,14 +102,7 @@ export default function Header() {
                 onClick={() => setDropdownOpen((v) => !v)}
                 aria-label="User menu"
               >
-                <Image
-                  src={profileImgSrc || "/profile.png"}
-                  alt={session.user?.name || "User"}
-                  width={40}
-                  height={40}
-                  style={{ borderRadius: '50%', border: '2px solid #5eead4', boxShadow: '0 0 8px #00ffff' }}
-                  onError={() => setProfileImgSrc("/profile.png")}
-                />
+                <UserImage src={profileImgSrc} alt={session.user?.name || "User"} size={40} />
               </button>
               {dropdownOpen && (
                 <div style={{

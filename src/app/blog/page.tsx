@@ -1,9 +1,9 @@
 import React from "react";
 import Header from "../components/Header";
 import Link from "next/link";
-import Image from "next/image";
 import clientPromise from "../../lib/mongodb";
 import { Document } from "mongodb";
+import UserImage from "../components/UserImage";
 
 // Add BlogPost type
 interface BlogPost {
@@ -34,26 +34,6 @@ async function getPosts(): Promise<BlogPost[]> {
     date: post.date,
     author: post.author,
   }));
-}
-
-function AuthorImage({ src, alt }: { src?: string; alt: string }) {
-  const [imgSrc, setImgSrc] = React.useState(src || "/profile.png");
-  return (
-    <Image
-      src={imgSrc}
-      alt={alt}
-      width={64}
-      height={64}
-      style={{
-        borderRadius: '50%',
-        objectFit: 'cover',
-        border: '2px solid #5eead4',
-        boxShadow: '0 0 8px #00ffff',
-      }}
-      priority
-      onError={() => setImgSrc("/profile.png")}
-    />
-  );
 }
 
 export default async function BlogPage() {
@@ -94,7 +74,7 @@ export default async function BlogPage() {
                 transition: 'box-shadow 0.2s',
               }}
             >
-              <AuthorImage src={post.author?.image} alt={post.author?.name || "User"} />
+              <UserImage src={post.author?.image} alt={post.author?.name || "User"} size={64} />
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6 }}>
                   <span style={{ fontWeight: 700, fontSize: 20 }}>{post.title}</span>

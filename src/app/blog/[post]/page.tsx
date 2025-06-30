@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Header from "../../components/Header";
 import clientPromise from "../../../lib/mongodb";
-import Image from "next/image";
+import UserImage from "../../components/UserImage";
 
 async function getPostByPost(post: string) {
   const client = await clientPromise;
@@ -36,21 +36,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ post:
           marginBottom: 32,
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 18 }}>
-            <Image
-              src={blogPost.author?.image || "/profile.png"}
-              alt={blogPost.author?.name || "User"}
-              width={56}
-              height={56}
-              style={{
-                width: 56,
-                height: 56,
-                borderRadius: '50%',
-                objectFit: 'cover',
-                border: '2px solid #5eead4',
-                boxShadow: '0 0 8px #00ffff',
-              }}
-              onError={(e) => { e.currentTarget.src = "/profile.png"; }}
-            />
+            <UserImage src={blogPost.author?.image} alt={blogPost.author?.name || "User"} size={56} />
             <div>
               <div style={{ color: '#fff', fontWeight: 600, fontSize: 17 }}>{blogPost.author?.name || "User"}</div>
               <div style={{ color: '#5eead4', fontSize: 14 }}>{blogPost.date ? new Date(blogPost.date).toLocaleDateString() : ""}</div>

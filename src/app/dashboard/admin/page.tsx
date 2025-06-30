@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import Header from "../../components/Header";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import UserImage from "../../components/UserImage";
 
 type User = {
   _id: string;
@@ -11,27 +11,6 @@ type User = {
   email: string;
   image?: string;
 };
-
-function UserImage({ src, alt }: { src?: string; alt: string }) {
-  const [imgSrc, setImgSrc] = useState(src || "/profile.png");
-  return (
-    <Image
-      src={imgSrc}
-      alt={alt}
-      width={48}
-      height={48}
-      style={{
-        width: 48,
-        height: 48,
-        borderRadius: '50%',
-        objectFit: 'cover',
-        border: '2px solid #5eead4',
-        boxShadow: '0 0 8px #00ffff',
-      }}
-      onError={() => setImgSrc("/profile.png")}
-    />
-  );
-}
 
 export default function AdminDashboard() {
   const { data: session, status } = useSession();
@@ -96,7 +75,7 @@ export default function AdminDashboard() {
               alignItems: 'center',
               gap: 20,
             }}>
-              <UserImage src={user.image} alt={user.name} />
+              <UserImage src={user.image} alt={user.name} size={48} />
               <div>
                 <div style={{ fontWeight: 700, fontSize: 18 }}>{user.name}</div>
                 <div style={{ color: '#b3b8c2', fontSize: 15 }}>{user.email}</div>

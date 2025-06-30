@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import Header from "../components/Header";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
+import UserImage from "../components/UserImage";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -15,7 +15,7 @@ export default function DashboardPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [selectedSection, setSelectedSection] = useState("Blog");
-  const [profileImgSrc, setProfileImgSrc] = useState(session?.user?.image || "/profile.png");
+  const profileImgSrc = session?.user?.image || "/profile.png";
 
   React.useEffect(() => {
     if (typeof window !== 'undefined' && status === "unauthenticated") {
@@ -73,22 +73,7 @@ export default function DashboardPage() {
           alignItems: 'center',
           gap: 32,
         }}>
-          <Image
-            src={profileImgSrc}
-            alt={session?.user?.name || "User"}
-            width={80}
-            height={80}
-            style={{
-              width: 80,
-              height: 80,
-              borderRadius: '50%',
-              objectFit: 'cover',
-              border: '2px solid #5eead4',
-              boxShadow: '0 0 8px #00ffff',
-              marginBottom: 18,
-            }}
-            onError={() => setProfileImgSrc("/profile.png")}
-          />
+          <UserImage src={profileImgSrc} alt={session?.user?.name || "User"} size={80} />
           <div style={{ fontWeight: 700, fontSize: 22, marginBottom: 6, color: '#fff', textAlign: 'center', wordBreak: 'break-word' }}>{session?.user?.name}</div>
           <nav style={{ display: 'flex', flexDirection: 'column', gap: 18, width: '100%', alignItems: 'center', marginTop: 24 }}>
             {['Blog', 'Videos', 'Art'].map(section => (
