@@ -6,7 +6,7 @@ import Image from "next/image";
 // Demo blog post data
 const posts = [
   {
-    slug: "first-post",
+    post: "first-post",
     title: "Welcome to the Community Blog!",
     excerpt: "This is our very first post. Stay tuned for more updates and stories from the community.",
     date: "2024-06-01",
@@ -16,7 +16,7 @@ const posts = [
     },
   },
   {
-    slug: "web3-tips",
+    post: "web3-tips",
     title: "Top 5 Web3 Tips for Beginners",
     excerpt: "Get started with Web3 and blockchain with these essential tips from our community experts.",
     date: "2024-06-02",
@@ -26,7 +26,7 @@ const posts = [
     },
   },
   {
-    slug: "community-art",
+    post: "community-art",
     title: "Showcasing Community Art",
     excerpt: "A look at some of the amazing art created by our talented members.",
     date: "2024-06-03",
@@ -55,8 +55,8 @@ export default function BlogPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
           {posts.map((post) => (
             <Link
-              key={post.slug}
-              href={`/blog/${post.slug}`}
+              key={post.post}
+              href={`/blog/${post.post}`}
               style={{
                 background: 'rgba(34, 38, 44, 0.95)',
                 borderRadius: 16,
