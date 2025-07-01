@@ -1,45 +1,53 @@
 import React from "react";
 import Header from "./components/Header";
+import clientPromise from "../lib/mongodb";
+import BlogSlider from "./components/BlogSlider";
+import VideoSlider from "./components/VideoSlider";
+import ArtSlider from "./components/ArtSlider";
+import { Document } from "mongodb";
 
-const sections = [
-  {
-    key: "blog",
-    title: "Blog",
-    description: "Community stories, updates, and more!",
-    href: "/blog",
-    cta: "Read blog",
-  },
-  {
-    key: "videos",
-    title: "Videos",
-    description: "Community video content and highlights!",
-    href: "/videos",
-    cta: "Watch videos",
-  },
-  {
-    key: "art",
-    title: "Art",
-    description: "Community pictures and art showcase!",
-    href: "/art",
-    cta: "View art",
-  },
-  {
-    key: "info",
-    title: "Info",
-    description: "Community information and resources!",
-    href: "/info",
-    cta: "More info",
-  },
-  {
-    key: "ecosystem",
-    title: "Ecosystem",
-    description: "Ethers.js integration and community ecosystem features!",
-    href: "/ecosystem",
-    cta: "Explore ecosystem",
-  },
-];
+// Add BlogPost type
+interface BlogPost {
+  _id: string;
+  title: string;
+  slug: string;
+  excerpt?: string;
+  content?: string;
+  date?: string;
+  author?: {
+    name?: string;
+    image?: string;
+  };
+}
 
-export default function Home() {
+async function getLastBlogPosts(): Promise<BlogPost[]> {
+  const client = await clientPromise;
+  const db = client.db();
+  const posts = await db.collection("posts").find({}).sort({ date: -1 }).limit(5).toArray();
+  return posts.map((post: Document) => ({
+    _id: post._id.toString(),
+    title: post.title,
+    slug: post.slug,
+    excerpt: post.excerpt,
+    content: post.content,
+    date: post.date,
+    author: post.author,
+  }));
+}
+
+export default async function Home() {
+  const blogPosts = await getLastBlogPosts();
+  // Placeholder data for videos and art
+  const videos = [
+    { id: 1, title: "Community Highlights #1", url: "https://www.youtube.com/embed/dQw4w9WgXcQ" },
+    { id: 2, title: "How to Join", url: "https://www.youtube.com/embed/3GwjfUFyY6M" },
+    { id: 3, title: "Meet the Team", url: "https://www.youtube.com/embed/oHg5SJYRHA0" },
+  ];
+  const art = [
+    { id: 1, title: "Neon City", image: "/art1.jpg" },
+    { id: 2, title: "Community Spirit", image: "/art2.jpg" },
+    { id: 3, title: "Digital Dreams", image: "/art3.jpg" },
+  ];
   return (
     <div style={{
       minHeight: '100vh',
@@ -76,35 +84,48 @@ export default function Home() {
             A modern, dark-themed community portal for sharing, learning, and connecting.
           </p>
         </section>
-        {/* Content Previews */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-          gap: 32,
-        }}>
-          {sections.map((section) => (
-            <div key={section.key} style={{
-              background: 'rgba(34, 38, 44, 0.95)',
-              borderRadius: 16,
-              padding: 28,
-              boxShadow: '0 2px 16px 0 rgba(0,255,255,0.06)',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'flex-start',
-              justifyContent: 'space-between',
-              minHeight: 180,
-            }}>
-              <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 10 }}>{section.title}</h2>
-              <p style={{ color: '#b3b8c2', fontSize: 16, marginBottom: 18 }}>{section.description}</p>
-              <a
-                href={section.href}
-                className="neon-link"
-              >
-                {section.cta} &rarr;
-              </a>
-            </div>
-          ))}
-        </div>
+        {/* Blog Section */}
+        <section style={{ marginBottom: 48 }}>
+          <h2 style={{ fontSize: 28, fontWeight: 700, marginBottom: 12 }}>Blog</h2>
+          <p style={{ color: '#b3b8c2', fontSize: 17, marginBottom: 18 }}>Community stories, updates, and more!</p>
+          <BlogSlider posts={blogPosts} />
+        </section>
+        {/* Videos Section */}
+        <section style={{ marginBottom: 48 }}>
+          <h2 style={{ fontSize: 28, fontWeight: 700, marginBottom: 12 }}>Videos</h2>
+          <p style={{ color: '#b3b8c2', fontSize: 17, marginBottom: 18 }}>Community video content and highlights!</p>
+          <VideoSlider videos={videos} />
+        </section>
+        {/* Art Section */}
+        <section style={{ marginBottom: 48 }}>
+          <h2 style={{ fontSize: 28, fontWeight: 700, marginBottom: 12 }}>Art</h2>
+          <p style={{ color: '#b3b8c2', fontSize: 17, marginBottom: 18 }}>Community pictures and art showcase!</p>
+          <ArtSlider art={art} />
+        </section>
+        {/* Info Section */}
+        <section style={{ marginBottom: 48 }}>
+          <h2 style={{ fontSize: 28, fontWeight: 700, marginBottom: 12 }}>Info</h2>
+          <p style={{ color: '#b3b8c2', fontSize: 17, marginBottom: 18 }}>Community information and resources!</p>
+          <div style={{ background: 'rgba(34, 38, 44, 0.95)', borderRadius: 16, padding: 28, boxShadow: '0 2px 16px 0 rgba(0,255,255,0.06)' }}>
+            <ul style={{ color: '#b3b8c2', fontSize: 16, margin: 0, paddingLeft: 20 }}>
+              <li>How to join the community</li>
+              <li>Community guidelines</li>
+              <li>Contact and support</li>
+            </ul>
+          </div>
+        </section>
+        {/* Ecosystem Section */}
+        <section style={{ marginBottom: 48 }}>
+          <h2 style={{ fontSize: 28, fontWeight: 700, marginBottom: 12 }}>Ecosystem</h2>
+          <p style={{ color: '#b3b8c2', fontSize: 17, marginBottom: 18 }}>Ethers.js integration and community ecosystem features!</p>
+          <div style={{ background: 'rgba(34, 38, 44, 0.95)', borderRadius: 16, padding: 28, boxShadow: '0 2px 16px 0 rgba(0,255,255,0.06)' }}>
+            <ul style={{ color: '#b3b8c2', fontSize: 16, margin: 0, paddingLeft: 20 }}>
+              <li>Wallet connection</li>
+              <li>Token swaps</li>
+              <li>Community projects</li>
+            </ul>
+          </div>
+        </section>
       </main>
     </div>
   );
