@@ -84,12 +84,26 @@ export default function VideosPage() {
                   ) : (
                     <div style={{ color: '#ff4d4f', marginBottom: 8 }}>Invalid YouTube URL</div>
                   )}
-                  <button
+                  <div
                     onClick={() => setModalVideo(video)}
-                    style={{ background: 'none', border: 'none', color: '#5eead4', fontWeight: 700, fontSize: 18, cursor: 'pointer', marginBottom: 6, textAlign: 'center', textDecoration: 'underline' }}
+                    style={{
+                      color: '#fff',
+                      fontWeight: 500,
+                      fontSize: 16,
+                      marginBottom: 6,
+                      textAlign: 'center',
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      maxWidth: '100%',
+                      width: '100%',
+                      minHeight: 22,
+                    }}
+                    title={video.description}
                   >
-                    {video.description}
-                  </button>
+                    {video.description.length > 80 ? video.description.slice(0, 80) + '…' : video.description}
+                  </div>
                   <button
                     onClick={() => setModalVideo(video)}
                     style={{ background: '#5eead4', color: '#181c20', border: 'none', borderRadius: 8, padding: '6px 18px', fontWeight: 700, fontSize: 15, cursor: 'pointer', marginBottom: 6 }}
