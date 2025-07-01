@@ -11,8 +11,8 @@ async function getPostByPost(post: string) {
   return result;
 }
 
-export default async function BlogPostPage({ params }: { params: Promise<{ post: string }> }) {
-  const { post } = await params;
+export default async function BlogPostPage({ params }: { params: { post: string } }) {
+  const { post } = params;
   const blogPost = await getPostByPost(post);
   if (!blogPost) return notFound();
 

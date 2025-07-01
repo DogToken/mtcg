@@ -78,7 +78,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
-    } else if (status === "authenticated" && session?.user?.email !== "doggo@dogswap.xyz") {
+    } else if (status === "authenticated" && session?.user?.role !== "admin") {
       router.push("/dashboard");
     } else if (status === "authenticated") {
       fetch("/api/admin/users").then(res => res.json()).then(data => {
