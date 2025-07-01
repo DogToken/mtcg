@@ -93,16 +93,19 @@ export default function VideosPage() {
                       marginBottom: 6,
                       textAlign: 'center',
                       cursor: 'pointer',
-                      whiteSpace: 'nowrap',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 3,
+                      WebkitBoxOrient: 'vertical',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
-                      maxWidth: '100%',
+                      maxWidth: 260,
+                      minHeight: 60,
+                      maxHeight: 72,
                       width: '100%',
-                      minHeight: 22,
                     }}
                     title={video.description}
                   >
-                    {video.description.length > 80 ? video.description.slice(0, 80) + '…' : video.description}
+                    {video.description}
                   </div>
                   <button
                     onClick={() => setModalVideo(video)}
