@@ -6,10 +6,18 @@ import UserImage from "./UserImage";
 
 const navItems = ["Home", "Blog", "Videos", "Art", "Ecosystem"];
 
+type SessionUserWithRole = {
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+  role?: string;
+};
+
 export default function Header() {
   const { data: session } = useSession();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const user = session?.user as SessionUserWithRole | undefined;
   const [profileImgSrc, setProfileImgSrc] = useState<string | undefined>(session?.user?.image || "/profile.png");
 
   React.useEffect(() => {
@@ -121,7 +129,7 @@ export default function Header() {
                 }}>
                   <Link href="/dashboard" style={{ padding: '12px 18px', color: '#fff', textDecoration: 'none', fontWeight: 500, borderRadius: 8, transition: 'background 0.2s' }}>Dashboard</Link>
                   <Link href="/settings" style={{ padding: '12px 18px', color: '#fff', textDecoration: 'none', fontWeight: 500, borderRadius: 8, transition: 'background 0.2s' }}>Profile</Link>
-                  {session.user?.email === "doggo@dogswap.xyz" && (
+                  {user?.role === 'admin' && (
                     <Link href="/dashboard/admin" style={{ padding: '12px 18px', color: '#fff', textDecoration: 'none', fontWeight: 500, borderRadius: 8, transition: 'background 0.2s' }}>Admin</Link>
                   )}
                   <button

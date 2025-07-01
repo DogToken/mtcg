@@ -21,7 +21,7 @@ export const authOptions = {
         if (user && user.hashedPassword) {
           const isValid = await compare(credentials!.password, user.hashedPassword);
           if (isValid) {
-            return { id: user._id.toString(), email: user.email, name: user.name, image: user.image };
+            return { id: user._id.toString(), email: user.email, name: user.name, image: user.image, role: user.role || 'user' };
           }
         }
         return null;
@@ -40,12 +40,18 @@ export const authOptions = {
         if (user && typeof user === 'object' && 'image' in user && typeof (user as { image?: unknown }).image === 'string') {
           session.user.image = (user as { image: string }).image;
         }
+        if (token && typeof token === 'object' && 'role' in token && typeof token.role === 'string') {
+          session.user.role = token.role;
+        }
       }
       return session;
     },
     async jwt({ token, user }: { token: JWT, user?: unknown }) {
       if (user && typeof user === 'object' && 'image' in user && typeof (user as { image?: unknown }).image === 'string') {
         token.image = (user as { image: string }).image;
+      }
+      if (user && typeof user === 'object' && 'role' in user && typeof (user as { role?: unknown }).role === 'string') {
+        token.role = (user as { role: string }).role;
       }
       return token;
     },
