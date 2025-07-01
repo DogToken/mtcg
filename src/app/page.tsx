@@ -1,86 +1,31 @@
-import React from "react";
+'use client';
+import React, { useEffect, useState } from "react";
 import Header from "./components/Header";
-import clientPromise from "../lib/mongodb";
 import BlogSlider from "./components/BlogSlider";
 import VideoSlider from "./components/VideoSlider";
 import ArtSlider from "./components/ArtSlider";
-import { Document } from "mongodb";
 
-// Add BlogPost type
-interface BlogPost {
-  _id: string;
-  title: string;
-  slug: string;
-  excerpt?: string;
-  content?: string;
-  date?: string;
-  author?: {
-    name?: string;
-    image?: string;
-  };
-}
+export default function Home() {
+  const [blogPosts, setBlogPosts] = useState([]);
+  const [videos, setVideos] = useState([]);
+  const [art, setArt] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-interface Video {
-  _id: string;
-  url: string;
-  description: string;
-  date?: string;
-  author?: {
-    name?: string;
-    email?: string;
-    image?: string;
-  };
-}
+  useEffect(() => {
+    async function fetchData() {
+      const [blogRes, videoRes, artRes] = await Promise.all([
+        fetch("/api/blogpost").then(r => r.json()),
+        fetch("/api/videos").then(r => r.json()),
+        fetch("/api/art").then(r => r.json()),
+      ]);
+      setBlogPosts(blogRes.posts?.slice(0, 5) || []);
+      setVideos(videoRes.videos?.slice(0, 5) || []);
+      setArt(artRes.art?.slice(0, 5) || []);
+      setLoading(false);
+    }
+    fetchData();
+  }, []);
 
-interface Art {
-  _id: string;
-  url: string;
-}
-
-async function getLastBlogPosts(): Promise<BlogPost[]> {
-  const client = await clientPromise;
-  const db = client.db();
-  const posts = await db.collection("posts").find({}).sort({ _id: -1 }).limit(5).toArray();
-  return posts.map((post: Document) => ({
-    _id: post._id.toString(),
-    title: post.title,
-    slug: post.slug,
-    excerpt: post.excerpt,
-    content: post.content,
-    date: post.date,
-    author: post.author,
-  }));
-}
-
-async function getLastVideos(): Promise<Video[]> {
-  const client = await clientPromise;
-  const db = client.db();
-  const videos = await db.collection("videos").find({}).sort({ _id: -1 }).limit(5).toArray();
-  return videos.map((video: Document) => ({
-    _id: video._id.toString(),
-    url: video.url,
-    description: video.description,
-    date: video.date,
-    author: video.author,
-  }));
-}
-
-async function getLastArt(): Promise<Art[]> {
-  const client = await clientPromise;
-  const db = client.db();
-  const art = await db.collection("art").find({}).sort({ _id: -1 }).limit(5).toArray();
-  return art.map((a: Document) => ({
-    _id: a._id.toString(),
-    url: a.url,
-  }));
-}
-
-export const dynamic = "force-dynamic";
-
-export default async function Home() {
-  const blogPosts = await getLastBlogPosts();
-  const videos = await getLastVideos();
-  const art = await getLastArt();
   return (
     <div style={{
       minHeight: '100vh',
@@ -121,19 +66,19 @@ export default async function Home() {
         <section style={{ marginBottom: 48 }}>
           <h2 style={{ fontSize: 28, fontWeight: 700, marginBottom: 12 }}>Blog</h2>
           <p style={{ color: '#b3b8c2', fontSize: 17, marginBottom: 18 }}>Community stories, updates, and more!</p>
-          <BlogSlider posts={blogPosts} />
+          {loading ? <div style={{ color: '#5eead4', textAlign: 'center' }}>Loading...</div> : <BlogSlider posts={blogPosts} />}
         </section>
         {/* Videos Section */}
         <section style={{ marginBottom: 48 }}>
           <h2 style={{ fontSize: 28, fontWeight: 700, marginBottom: 12 }}>Videos</h2>
           <p style={{ color: '#b3b8c2', fontSize: 17, marginBottom: 18 }}>Community video content and highlights!</p>
-          <VideoSlider videos={videos} />
+          {loading ? <div style={{ color: '#5eead4', textAlign: 'center' }}>Loading...</div> : <VideoSlider videos={videos} />}
         </section>
         {/* Art Section */}
         <section style={{ marginBottom: 48 }}>
           <h2 style={{ fontSize: 28, fontWeight: 700, marginBottom: 12 }}>Art</h2>
           <p style={{ color: '#b3b8c2', fontSize: 17, marginBottom: 18 }}>Community pictures and art showcase!</p>
-          <ArtSlider art={art} />
+          {loading ? <div style={{ color: '#5eead4', textAlign: 'center' }}>Loading...</div> : <ArtSlider art={art} />}
         </section>
         {/* Info Section */}
         <section style={{ marginBottom: 48 }}>

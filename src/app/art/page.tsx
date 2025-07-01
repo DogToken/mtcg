@@ -52,28 +52,31 @@ export default function ArtPage() {
           ) : (
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-              gap: 24,
+              gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+              gap: 32,
               marginTop: 24,
             }}>
               {art.map(a => (
                 <div key={a._id} style={{
                   background: 'rgba(24,28,32,0.98)',
-                  borderRadius: 12,
+                  borderRadius: 16,
                   boxShadow: '0 2px 8px 0 rgba(0,255,255,0.04)',
-                  padding: 8,
+                  padding: 10,
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
                   cursor: 'pointer',
-                  transition: 'box-shadow 0.2s',
+                  transition: 'box-shadow 0.2s, transform 0.2s',
+                  border: '2px solid transparent',
                 }}
                   onClick={() => setModalImg(a.url)}
+                  onMouseOver={e => (e.currentTarget.style.boxShadow = '0 0 24px #5eead4, 0 2px 8px 0 rgba(0,255,255,0.10)')}
+                  onMouseOut={e => (e.currentTarget.style.boxShadow = '0 2px 8px 0 rgba(0,255,255,0.04)')}
                 >
                   <img
                     src={a.url}
                     alt="Art"
-                    style={{ width: '100%', height: 220, objectFit: 'cover', borderRadius: 8, border: '2px solid #5eead4', boxShadow: '0 0 8px #00ffff', background: '#23272b' }}
+                    style={{ width: '100%', height: 260, objectFit: 'cover', borderRadius: 12, border: '2px solid #5eead4', boxShadow: '0 0 8px #00ffff', background: '#23272b', transition: 'transform 0.2s' }}
                     onError={e => (e.currentTarget.src = '/profile.png')}
                     loading="lazy"
                   />
