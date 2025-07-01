@@ -36,26 +36,25 @@ export default async function BlogPostPage({ params }: { params: { post: string 
 }
 
 export async function generateMetadata({ params }: { params: { post: string } }): Promise<Metadata> {
-  // Fetch post data and site info
-  const postRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/blogpost?slug=${params.post}`);
-  const postData = await postRes.json();
-  const siteRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/admin/siteinfo`);
-  const siteData = await siteRes.json();
-  const post = postData?.post || {};
-  const info = siteData?.info || {};
+  const client = await clientPromise;
+  const db = client.db();
+  const post = await db.collection("posts").findOne({ slug: params.post });
+  const title = post?.title || "Blog Post | Community Group";
+  const description = post?.description || "Community blog post.";
+  const image = post?.image || "/profile.png";
   return {
-    title: post.title || info.title || "Blog Post | Community Group",
-    description: post.description || info.description || "Community blog post.",
+    title,
+    description,
     openGraph: {
-      title: post.title || info.title || "Blog Post | Community Group",
-      description: post.description || info.description || "Community blog post.",
-      images: [post.image || info.logo || '/profile.png'],
+      title,
+      description,
+      images: [image],
     },
     twitter: {
-      card: 'summary_large_image',
-      title: post.title || info.title || "Blog Post | Community Group",
-      description: post.description || info.description || "Community blog post.",
-      images: [post.image || info.logo || '/profile.png'],
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
     },
   };
 } 
