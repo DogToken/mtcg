@@ -1,4 +1,6 @@
 // import type { Metadata } from "next";
+"use client";
+
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import SessionProviderWrapper from "./components/SessionProviderWrapper";
