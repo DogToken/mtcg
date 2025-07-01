@@ -74,7 +74,6 @@ export default function AdminDashboard() {
   const [siteInfoLoading, setSiteInfoLoading] = useState(false);
   const [siteInfoSuccess, setSiteInfoSuccess] = useState('');
   const [siteInfoError, setSiteInfoError] = useState('');
-  const [showHeaderEdit, setShowHeaderEdit] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -319,46 +318,7 @@ export default function AdminDashboard() {
       justifyContent: 'flex-start',
       padding: '40px 0',
     }}>
-      <div style={{ width: '100%', maxWidth: 900, position: 'relative' }}>
-        <Header />
-        {session?.user?.role === 'admin' && (
-          <button
-            onClick={() => setShowHeaderEdit(true)}
-            style={{ position: 'absolute', right: 32, top: 12, background: '#5eead4', color: '#181c20', border: 'none', borderRadius: 8, padding: '6px 16px', fontWeight: 700, cursor: 'pointer', zIndex: 10 }}
-          >
-            Edit Header
-          </button>
-        )}
-      </div>
-      {showHeaderEdit && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100vw',
-          height: '100vh',
-          background: 'rgba(0,0,0,0.7)',
-          zIndex: 1000,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }} onClick={() => setShowHeaderEdit(false)}>
-          <div style={{ background: '#23272b', borderRadius: 16, padding: 32, minWidth: 340, boxShadow: '0 2px 24px #00ffff', position: 'relative' }} onClick={e => e.stopPropagation()}>
-            <h3 style={{ fontSize: 22, fontWeight: 700, marginBottom: 18 }}>Edit Header</h3>
-            <input type="text" value={siteInfo.header} onChange={e => handleSiteInfoChange('header', e.target.value)} placeholder="Header Text" style={{ width: '100%', borderRadius: 8, border: '1px solid #2a2e33', background: '#181c20', color: '#fff', padding: 8, fontSize: 15, marginBottom: 14 }} />
-            <input type="text" value={siteInfo.logo} onChange={e => handleSiteInfoChange('logo', e.target.value)} placeholder="Logo URL (e.g. /profile.png)" style={{ width: '100%', borderRadius: 8, border: '1px solid #2a2e33', background: '#181c20', color: '#fff', padding: 8, fontSize: 15, marginBottom: 14 }} />
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 14 }}>
-              {siteInfo.logo && <img src={siteInfo.logo} alt="Logo preview" style={{ width: 48, height: 48, borderRadius: 8, border: '1px solid #5eead4', background: '#fff' }} />}
-              <span style={{ color: '#fff', fontWeight: 600 }}>{siteInfo.header}</span>
-            </div>
-            <button onClick={handleSiteInfoSave} disabled={siteInfoLoading} style={{ background: '#5eead4', color: '#181c20', fontWeight: 700, border: 'none', borderRadius: 8, padding: '10px 28px', fontSize: 16, cursor: 'pointer', marginRight: 12 }}>Save</button>
-            <button onClick={() => setShowHeaderEdit(false)} style={{ background: '#23272b', color: '#fff', fontWeight: 700, border: '1px solid #5eead4', borderRadius: 8, padding: '10px 28px', fontSize: 16, cursor: 'pointer' }}>Cancel</button>
-            {siteInfoLoading && <span style={{ color: '#5eead4', marginLeft: 10 }}>Saving...</span>}
-            {siteInfoSuccess && <span style={{ color: '#5eead4', marginLeft: 10 }}>{siteInfoSuccess}</span>}
-            {siteInfoError && <span style={{ color: '#ff4d4f', marginLeft: 10 }}>{siteInfoError}</span>}
-          </div>
-        </div>
-      )}
+      <Header editableHeader />
       <main style={{ width: '100%', maxWidth: 900, padding: '0 32px' }}>
         <h2 style={{ fontSize: 32, fontWeight: 700, marginBottom: 32 }}>Admin Dashboard</h2>
         <div style={{ display: 'flex', gap: 18, marginBottom: 32 }}>

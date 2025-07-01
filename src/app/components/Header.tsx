@@ -13,12 +13,53 @@ type SessionUserWithRole = {
   role?: string;
 };
 
-export default function Header() {
+type HeaderProps = {
+  editableHeader?: boolean;
+};
+
+export default function Header({ editableHeader }: HeaderProps) {
   const { data: session } = useSession();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const user = session?.user as SessionUserWithRole | undefined;
   const [profileImgSrc, setProfileImgSrc] = useState<string | undefined>(session?.user?.image || "/profile.png");
+
+  // State for editable header
+  const [headerText, setHeaderText] = useState<string>("Community Group");
+  const [logoUrl, setLogoUrl] = useState<string>("");
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
+
+  // Fetch header info from API
+  React.useEffect(() => {
+    if (editableHeader) {
+      setLoading(true);
+      fetch("/api/admin/siteinfo")
+        .then(res => res.json())
+        .then(data => {
+          setHeaderText(data.info?.header || "Community Group");
+          setLogoUrl(data.info?.logo || "");
+        })
+        .finally(() => setLoading(false));
+    }
+  }, [editableHeader]);
+
+  // Save header info to API
+  const handleSave = async () => {
+    setLoading(true);
+    setSuccess("");
+    setError("");
+    const res = await fetch("/api/admin/siteinfo", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ info: { header: headerText, logo: logoUrl } }),
+    });
+    if (res.ok) setSuccess("Saved!");
+    else setError("Failed to save.");
+    setLoading(false);
+  };
 
   React.useEffect(() => {
     setProfileImgSrc(session?.user?.image || "/profile.png");
@@ -80,12 +121,22 @@ export default function Header() {
         borderBottom: '1px solid #2a2e33',
         padding: '0 32px 16px 32px',
         marginBottom: 32,
+        position: 'relative',
       }}>
-        <Link href="/" className="logo-link" style={{ textDecoration: 'none' }}>
+        <Link href="/" className="logo-link" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 12 }}>
+          {logoUrl && <img src={logoUrl} alt="Logo" style={{ width: 40, height: 40, borderRadius: 8, background: '#fff', border: '1px solid #5eead4' }} />}
           <div style={{ fontWeight: 700, fontSize: 28, letterSpacing: '-0.03em', color: 'inherit' }}>
-            Community Group
+            {headerText}
           </div>
         </Link>
+        {editableHeader && user?.role === 'admin' && (
+          <button
+            onClick={() => setShowEditModal(true)}
+            style={{ position: 'absolute', right: 32, top: 0, background: '#5eead4', color: '#181c20', border: 'none', borderRadius: 8, padding: '6px 16px', fontWeight: 700, cursor: 'pointer', zIndex: 10 }}
+          >
+            Edit Header
+          </button>
+        )}
         <nav style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
           {navItems.map((item) => (
             <Link
@@ -156,6 +207,35 @@ export default function Header() {
           )}
         </nav>
       </header>
+      {editableHeader && user?.role === 'admin' && showEditModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(0,0,0,0.7)',
+          zIndex: 1000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }} onClick={() => setShowEditModal(false)}>
+          <div style={{ background: '#23272b', borderRadius: 16, padding: 32, minWidth: 340, boxShadow: '0 2px 24px #00ffff', position: 'relative' }} onClick={e => e.stopPropagation()}>
+            <h3 style={{ fontSize: 22, fontWeight: 700, marginBottom: 18 }}>Edit Header</h3>
+            <input type="text" value={headerText} onChange={e => setHeaderText(e.target.value)} placeholder="Header Text" style={{ width: '100%', borderRadius: 8, border: '1px solid #2a2e33', background: '#181c20', color: '#fff', padding: 8, fontSize: 15, marginBottom: 14 }} />
+            <input type="text" value={logoUrl} onChange={e => setLogoUrl(e.target.value)} placeholder="Logo URL (e.g. /profile.png)" style={{ width: '100%', borderRadius: 8, border: '1px solid #2a2e33', background: '#181c20', color: '#fff', padding: 8, fontSize: 15, marginBottom: 14 }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 14 }}>
+              {logoUrl && <img src={logoUrl} alt="Logo preview" style={{ width: 48, height: 48, borderRadius: 8, border: '1px solid #5eead4', background: '#fff' }} />}
+              <span style={{ color: '#fff', fontWeight: 600 }}>{headerText}</span>
+            </div>
+            <button onClick={handleSave} disabled={loading} style={{ background: '#5eead4', color: '#181c20', fontWeight: 700, border: 'none', borderRadius: 8, padding: '10px 28px', fontSize: 16, cursor: 'pointer', marginRight: 12 }}>Save</button>
+            <button onClick={() => setShowEditModal(false)} style={{ background: '#23272b', color: '#fff', fontWeight: 700, border: '1px solid #5eead4', borderRadius: 8, padding: '10px 28px', fontSize: 16, cursor: 'pointer' }}>Cancel</button>
+            {loading && <span style={{ color: '#5eead4', marginLeft: 10 }}>Saving...</span>}
+            {success && <span style={{ color: '#5eead4', marginLeft: 10 }}>{success}</span>}
+            {error && <span style={{ color: '#ff4d4f', marginLeft: 10 }}>{error}</span>}
+          </div>
+        </div>
+      )}
     </>
   );
 } 
