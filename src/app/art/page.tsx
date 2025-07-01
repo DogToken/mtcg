@@ -1,7 +1,5 @@
-import dynamic from "next/dynamic";
+import ArtClient from "../components/ArtClient";
 import { Metadata } from "next";
-
-const ArtClient = dynamic(() => import("../components/ArtClient"), { ssr: false });
 
 export default function ArtPage() {
   return <ArtClient />;
