@@ -35,7 +35,7 @@ interface Video {
 async function getLastBlogPosts(): Promise<BlogPost[]> {
   const client = await clientPromise;
   const db = client.db();
-  const posts = await db.collection("posts").find({}).sort({ date: -1 }).limit(5).toArray();
+  const posts = await db.collection("posts").find({}).sort({ _id: -1 }).limit(5).toArray();
   return posts.map((post: Document) => ({
     _id: post._id.toString(),
     title: post.title,

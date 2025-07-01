@@ -6,7 +6,7 @@ import { authOptions } from "../../../lib/authOptions";
 export async function GET() {
   const client = await clientPromise;
   const db = client.db();
-  const videos = await db.collection("videos").find({}).sort({ date: -1 }).toArray();
+  const videos = await db.collection("videos").find({}).sort({ _id: -1 }).toArray();
   return NextResponse.json({ videos });
 }
 
