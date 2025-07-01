@@ -309,10 +309,19 @@ export default function AdminDashboard() {
   }
 
   return (
-    <>
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(90deg, #181c20 0%, #23272b 100%)',
+      color: '#fff',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'flex-start',
+      padding: '40px 0',
+    }}>
       <Header editableHeader />
-      <main className="flex-1 w-full max-w-4xl mx-auto px-2 sm:px-4 py-4">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 18, marginBottom: 32, paddingTop: 32 }}>
+      <main style={{ width: '100%', maxWidth: 900, padding: '0 32px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 18, marginBottom: 32 }}>
           <h2 style={{ fontSize: 36, fontWeight: 800, color: '#5eead4', margin: 0, letterSpacing: '-0.03em', flex: 1 }}>Admin Dashboard</h2>
           <div style={{ display: 'flex', gap: 12 }}>
             <button onClick={() => setSelectedTab('Users')} style={{ color: selectedTab === 'Users' ? '#fff' : '#5eead4', background: selectedTab === 'Users' ? 'rgba(94,234,212,0.18)' : 'none', fontWeight: 700, fontSize: 18, border: 'none', borderRadius: 8, padding: '10px 24px', cursor: 'pointer', transition: 'background 0.2s, color 0.2s' }}>Users</button>
@@ -516,6 +525,6 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 } 
