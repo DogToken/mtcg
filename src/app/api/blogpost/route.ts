@@ -37,11 +37,13 @@ export async function POST(req: Request) {
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const authorEmail = url.searchParams.get('authorEmail');
-  if (!authorEmail) {
-    return NextResponse.json({ posts: [] });
-  }
   const client = await clientPromise;
   const db = client.db();
+  if (!authorEmail) {
+    // Return latest 5 posts for homepage
+    const posts = await db.collection("posts").find({}).sort({ _id: -1 }).limit(5).toArray();
+    return NextResponse.json({ posts });
+  }
   const posts = await db.collection("posts").find({ "author.email": authorEmail }).sort({ date: -1 }).toArray();
   return NextResponse.json({ posts });
 }

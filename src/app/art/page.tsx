@@ -52,7 +52,7 @@ export default function ArtPage() {
           ) : (
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+              gridTemplateColumns: 'repeat(4, 1fr)',
               gap: 32,
               marginTop: 24,
             }}>
@@ -68,6 +68,7 @@ export default function ArtPage() {
                   cursor: 'pointer',
                   transition: 'box-shadow 0.2s, transform 0.2s',
                   border: '2px solid transparent',
+                  minHeight: 260,
                 }}
                   onClick={() => setModalImg(a.url)}
                   onMouseOver={e => (e.currentTarget.style.boxShadow = '0 0 24px #5eead4, 0 2px 8px 0 rgba(0,255,255,0.10)')}
@@ -76,7 +77,7 @@ export default function ArtPage() {
                   <img
                     src={a.url}
                     alt="Art"
-                    style={{ width: '100%', height: 260, objectFit: 'cover', borderRadius: 12, border: '2px solid #5eead4', boxShadow: '0 0 8px #00ffff', background: '#23272b', transition: 'transform 0.2s' }}
+                    style={{ width: '100%', height: 200, objectFit: 'cover', borderRadius: 12, border: '2px solid #5eead4', boxShadow: '0 0 8px #00ffff', background: '#23272b', transition: 'transform 0.2s' }}
                     onError={e => (e.currentTarget.src = '/profile.png')}
                     loading="lazy"
                   />
