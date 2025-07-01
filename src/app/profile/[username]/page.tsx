@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Header from "../../components/Header";
 import UserImage from "../../components/UserImage";
-import { useRouter, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
 
 interface User {
   name: string;
@@ -11,7 +11,6 @@ interface User {
 }
 
 export default function PublicProfilePage() {
-  const router = useRouter();
   const params = useParams();
   const username = decodeURIComponent(params.username as string);
   const [user, setUser] = useState<User | null>(null);
@@ -41,8 +40,10 @@ export default function PublicProfilePage() {
         fetch('/api/videos').then(r => r.json()),
         fetch('/api/art').then(r => r.json()),
       ]);
-      const userVideos = (videoRes.videos || []).filter((v: any) => v.author?.email === data.user.email);
-      const userArt = (artRes.art || []).filter((a: any) => a.author?.email === data.user.email);
+      interface Video { author?: { email?: string } }
+      interface Art { author?: { email?: string } }
+      const userVideos = (videoRes.videos || []).filter((v: Video) => v.author?.email === data.user.email);
+      const userArt = (artRes.art || []).filter((a: Art) => a.author?.email === data.user.email);
       setStats({
         posts: blogRes.posts?.length || 0,
         videos: userVideos.length,
