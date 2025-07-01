@@ -38,7 +38,6 @@ export default function EcosystemPage() {
       name: 'DWMW',
       description: 'Community Web Series',
       token: 'DWMW',
-      roles: 'Community Web Series',
       image: '/dwmw.png',
       profileUrl: '/profile/DWMW',
       readUrl: 'https://www.mintme.com/token/DWMW',
@@ -48,7 +47,6 @@ export default function EcosystemPage() {
       name: 'SatoriD',
       description: 'Creator, Games, DMT Supreme',
       token: 'SatoriD',
-      roles: 'Creator, Games, DMT Supreme',
       image: '/satorid.png',
       profileUrl: '/profile/SatoriD',
       readUrl: 'https://www.mintme.com/token/SatoriD',
@@ -58,7 +56,6 @@ export default function EcosystemPage() {
       name: 'bobdubbloon',
       description: 'Podcasts, Recording, Editing, Creator',
       token: 'bobdubbloon',
-      roles: 'Podcasts, Recording, Editing, Creator',
       image: '/bobdubbloon.jpeg',
       profileUrl: '/profile/bobdubbloon',
       readUrl: 'https://www.mintme.com/token/bobdubbloon',
@@ -68,7 +65,6 @@ export default function EcosystemPage() {
       name: 'withinthevacuum',
       description: 'Music, Creator, Cast and Crew',
       token: 'withinthevacuum',
-      roles: 'Music, Creator, Cast and Crew',
       image: '/withinthevacuum.png',
       profileUrl: '/profile/withinthevacuum',
       readUrl: 'https://www.mintme.com/token/withinthevaccuum',
@@ -78,7 +74,6 @@ export default function EcosystemPage() {
       name: 'Embers',
       description: 'Book Saga, Myth, Imagination',
       token: 'Embers',
-      roles: 'Book Saga, Myth, Imagination',
       image: '/embers.jpeg',
       profileUrl: '/profile/Embers',
       readUrl: 'https://www.mintme.com/token/Embers',
@@ -88,7 +83,6 @@ export default function EcosystemPage() {
       name: 'Ottoken',
       description: 'Cast and Crew, Inspiration, Dreamer',
       token: 'Ottoken',
-      roles: 'Cast and Crew, Inspiration, Dreamer',
       image: '/ottoken.png',
       profileUrl: '/profile/Ottoken',
       readUrl: 'https://www.mintme.com/token/Ottoken',
@@ -98,7 +92,6 @@ export default function EcosystemPage() {
       name: 'Dreams',
       description: 'Community Airdrop, Building, Dreaming',
       token: 'Dreams',
-      roles: 'Community Airdrop, Building, Dreaming',
       image: '/dreams.webp',
       profileUrl: '/profile/Dreams',
       readUrl: 'https://www.mintme.com/token/Dreams',
@@ -108,7 +101,6 @@ export default function EcosystemPage() {
       name: 'MindsGaming',
       description: 'Creator, Builder, Dreamer',
       token: 'MindsGaming',
-      roles: 'Creator, Builder, Dreamer',
       image: '/mindsgaming.jpeg',
       profileUrl: '/profile/MindsGaming',
       readUrl: 'https://www.mintme.com/token/MindsGaming',
@@ -118,7 +110,6 @@ export default function EcosystemPage() {
       name: 'Doggo',
       description: 'Dog, Dreamer, Creator',
       token: 'MindsGaming',
-      roles: 'Dog, Dreamer, Creator',
       image: '/DogSwap.png',
       profileUrl: '/profile/Doggo',
       readUrl: 'https://www.mintme.com/token/DogSwap',
@@ -170,7 +161,6 @@ export default function EcosystemPage() {
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
                   <div style={{ fontWeight: 700, fontSize: 22, color: '#fff', marginBottom: 2 }}>{person.name}</div>
                   <div style={{ color: '#b3b8c2', fontSize: 16 }}>{person.description}</div>
-                  <div style={{ color: '#5eead4', fontSize: 15, fontWeight: 600 }}>{person.roles}</div>
                   <div style={{ color: '#b3b8c2', fontSize: 15, fontStyle: 'italic', marginTop: 2 }}>This is a short dummy description about {person.name} and their contribution to the community. More info coming soon.</div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'flex-end' }}>
