@@ -64,6 +64,16 @@ export default function AdminDashboard() {
   const [heroSlidesLoading, setHeroSlidesLoading] = useState(false);
   const [heroSlidesSuccess, setHeroSlidesSuccess] = useState("");
   const [heroSlidesError, setHeroSlidesError] = useState("");
+  const [siteInfo, setSiteInfo] = useState({
+    name: '',
+    title: '',
+    description: '',
+    header: '',
+    logo: '',
+  });
+  const [siteInfoLoading, setSiteInfoLoading] = useState(false);
+  const [siteInfoSuccess, setSiteInfoSuccess] = useState('');
+  const [siteInfoError, setSiteInfoError] = useState('');
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -84,6 +94,7 @@ export default function AdminDashboard() {
         fetchEcoEngagement();
         fetchEcoResources();
         fetchHeroSlides();
+        fetchSiteInfo();
       }
     }
   }, [status, session, router, selectedTab]);
@@ -267,6 +278,31 @@ export default function AdminDashboard() {
     setHeroSlidesLoading(false);
   };
 
+  const fetchSiteInfo = async () => {
+    setSiteInfoLoading(true);
+    const res = await fetch('/api/admin/siteinfo');
+    const data = await res.json();
+    setSiteInfo(data.info || { name: '', title: '', description: '', header: '', logo: '' });
+    setSiteInfoLoading(false);
+  };
+
+  const handleSiteInfoChange = (field: keyof typeof siteInfo, value: string) => {
+    setSiteInfo(prev => ({ ...prev, [field]: value }));
+  };
+  const handleSiteInfoSave = async () => {
+    setSiteInfoLoading(true);
+    setSiteInfoSuccess('');
+    setSiteInfoError('');
+    const res = await fetch('/api/admin/siteinfo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ info: siteInfo }),
+    });
+    if (res.ok) setSiteInfoSuccess('Saved!');
+    else setSiteInfoError('Failed to save.');
+    setSiteInfoLoading(false);
+  };
+
   if (status === "loading" || loading) {
     return <div style={{ color: '#5eead4', textAlign: 'center', marginTop: 80 }}>Loading...</div>;
   }
@@ -427,6 +463,24 @@ export default function AdminDashboard() {
               {heroSlidesLoading && <span style={{ color: '#5eead4', marginLeft: 10 }}>Saving...</span>}
               {heroSlidesSuccess && <span style={{ color: '#5eead4', marginLeft: 10 }}>{heroSlidesSuccess}</span>}
               {heroSlidesError && <span style={{ color: '#ff4d4f', marginLeft: 10 }}>{heroSlidesError}</span>}
+            </div>
+            <div style={{ marginTop: 40, background: 'rgba(34, 38, 44, 0.95)', borderRadius: 16, padding: 24, boxShadow: '0 2px 16px 0 rgba(0,255,255,0.06)' }}>
+              <div style={{ fontWeight: 700, fontSize: 22, color: '#fff', marginBottom: 10 }}>Site Info</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <input type="text" value={siteInfo.name} onChange={e => handleSiteInfoChange('name', e.target.value)} placeholder="Site Name" style={{ fontSize: 15, borderRadius: 6, border: '1px solid #5eead4', padding: 8, background: '#23272b', color: '#fff' }} />
+                <input type="text" value={siteInfo.title} onChange={e => handleSiteInfoChange('title', e.target.value)} placeholder="Site Title (SEO)" style={{ fontSize: 15, borderRadius: 6, border: '1px solid #5eead4', padding: 8, background: '#23272b', color: '#fff' }} />
+                <input type="text" value={siteInfo.description} onChange={e => handleSiteInfoChange('description', e.target.value)} placeholder="Site Description (SEO)" style={{ fontSize: 15, borderRadius: 6, border: '1px solid #5eead4', padding: 8, background: '#23272b', color: '#fff' }} />
+                <input type="text" value={siteInfo.header} onChange={e => handleSiteInfoChange('header', e.target.value)} placeholder="Header Text" style={{ fontSize: 15, borderRadius: 6, border: '1px solid #5eead4', padding: 8, background: '#23272b', color: '#fff' }} />
+                <input type="text" value={siteInfo.logo} onChange={e => handleSiteInfoChange('logo', e.target.value)} placeholder="Logo URL (e.g. /profile.png)" style={{ fontSize: 15, borderRadius: 6, border: '1px solid #5eead4', padding: 8, background: '#23272b', color: '#fff' }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginTop: 8 }}>
+                  {siteInfo.logo && <img src={siteInfo.logo} alt="Logo preview" style={{ width: 48, height: 48, borderRadius: 8, border: '1px solid #5eead4', background: '#fff' }} />}
+                  <span style={{ color: '#fff', fontWeight: 600 }}>{siteInfo.header}</span>
+                </div>
+              </div>
+              <button onClick={handleSiteInfoSave} disabled={siteInfoLoading} style={{ background: '#5eead4', color: '#181c20', border: 'none', borderRadius: 8, padding: '8px 18px', fontWeight: 700, cursor: 'pointer', marginTop: 16 }}>Save</button>
+              {siteInfoLoading && <span style={{ color: '#5eead4', marginLeft: 10 }}>Saving...</span>}
+              {siteInfoSuccess && <span style={{ color: '#5eead4', marginLeft: 10 }}>{siteInfoSuccess}</span>}
+              {siteInfoError && <span style={{ color: '#ff4d4f', marginLeft: 10 }}>{siteInfoError}</span>}
             </div>
           </>
         )}

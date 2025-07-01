@@ -5,7 +5,7 @@ import { authOptions } from "../../../../lib/authOptions";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
-  if (!session || session.user?.email !== "doggo@dogswap.xyz") {
+  if (!session || session.user?.role !== 'admin') {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const client = await clientPromise;
@@ -15,7 +15,7 @@ export async function GET() {
 
 export async function DELETE(req: Request) {
   const session = await getServerSession(authOptions);
-  if (!session || session.user?.email !== "doggo@dogswap.xyz") {
+  if (!session || session.user?.role !== 'admin') {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const url = new URL(req.url);
@@ -28,7 +28,7 @@ export async function DELETE(req: Request) {
 
 export async function PATCH(req: Request) {
   const session = await getServerSession(authOptions);
-  if (!session || session.user?.email !== "doggo@dogswap.xyz") {
+  if (!session || session.user?.role !== 'admin') {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const { id, name, image, role } = await req.json();
