@@ -11,6 +11,7 @@ type User = {
   name: string;
   email: string;
   image?: string;
+  role?: string;
 };
 
 const defaultFooterContent: FooterContent = {
@@ -41,6 +42,12 @@ export default function AdminDashboard() {
   const [footerLoading, setFooterLoading] = useState(false);
   const [footerSuccess, setFooterSuccess] = useState('');
   const [footerError, setFooterError] = useState('');
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editImage, setEditImage] = useState("");
+  const [editRole, setEditRole] = useState("user");
+  const [editError, setEditError] = useState("");
+  const [editSuccess, setEditSuccess] = useState("");
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -108,6 +115,36 @@ export default function AdminDashboard() {
     setFooterLoading(false);
   };
 
+  const openEdit = (user: User) => {
+    setEditingUser(user);
+    setEditName(user.name);
+    setEditImage(user.image || "");
+    setEditRole(user.role || "user");
+    setEditError("");
+    setEditSuccess("");
+  };
+
+  const closeEdit = () => setEditingUser(null);
+
+  const handleEditSave = async () => {
+    setEditError("");
+    setEditSuccess("");
+    if (!editingUser) return;
+    const res = await fetch('/api/admin/users', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: editingUser._id, name: editName, image: editImage, role: editRole }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      setEditError(data.error || 'Failed to update user');
+    } else {
+      setEditSuccess('User updated!');
+      setUsers(users.map(u => u._id === editingUser._id ? { ...u, name: editName, image: editImage, role: editRole } : u));
+      setTimeout(() => setEditingUser(null), 1000);
+    }
+  };
+
   if (status === "loading" || loading) {
     return <div style={{ color: '#5eead4', textAlign: 'center', marginTop: 80 }}>Loading...</div>;
   }
@@ -148,8 +185,16 @@ export default function AdminDashboard() {
                   <div>
                     <div style={{ fontWeight: 700, fontSize: 18 }}>{user.name}</div>
                     <div style={{ color: '#b3b8c2', fontSize: 15 }}>{user.email}</div>
+                    <div style={{ color: user.role === 'admin' ? '#ff4d4f' : '#5eead4', fontWeight: 600, fontSize: 15 }}>{user.role === 'admin' ? 'Admin' : 'User'}</div>
                   </div>
-                  <button onClick={() => handleRemove(user._id)} style={{ marginLeft: 'auto', background: '#ff4d4f', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 16px', fontWeight: 700, cursor: 'pointer' }}>Remove</button>
+                  <div style={{ marginLeft: 'auto', display: 'flex', gap: 10 }}>
+                    <button onClick={() => openEdit(user)} style={{ background: '#5eead4', color: '#181c20', border: 'none', borderRadius: 8, padding: '8px 16px', fontWeight: 700, cursor: 'pointer' }}>Edit</button>
+                    <button
+                      onClick={() => handleRemove(user._id)}
+                      style={{ background: '#ff4d4f', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 16px', fontWeight: 700, cursor: user.role === 'admin' || user.email === session?.user?.email ? 'not-allowed' : 'pointer', opacity: user.role === 'admin' || user.email === session?.user?.email ? 0.5 : 1 }}
+                      disabled={user.role === 'admin' || user.email === session?.user?.email}
+                    >Remove</button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -191,6 +236,45 @@ export default function AdminDashboard() {
           </section>
         )}
       </main>
+      {editingUser && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(0,0,0,0.7)',
+          zIndex: 1000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }} onClick={closeEdit}>
+          <div style={{ background: '#23272b', borderRadius: 16, padding: 32, minWidth: 340, boxShadow: '0 2px 24px #00ffff', position: 'relative' }} onClick={e => e.stopPropagation()}>
+            <h3 style={{ fontSize: 22, fontWeight: 700, marginBottom: 18 }}>Edit User</h3>
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ fontWeight: 600, fontSize: 15 }}>Name</label>
+              <input value={editName} onChange={e => setEditName(e.target.value)} style={{ width: '100%', borderRadius: 8, border: '1px solid #2a2e33', background: '#181c20', color: '#fff', padding: 8, fontSize: 15, marginTop: 4 }} />
+            </div>
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ fontWeight: 600, fontSize: 15 }}>Profile Image URL</label>
+              <input value={editImage} onChange={e => setEditImage(e.target.value)} style={{ width: '100%', borderRadius: 8, border: '1px solid #2a2e33', background: '#181c20', color: '#fff', padding: 8, fontSize: 15, marginTop: 4 }} />
+            </div>
+            <div style={{ marginBottom: 18 }}>
+              <label style={{ fontWeight: 600, fontSize: 15 }}>Role</label>
+              <select value={editRole} onChange={e => setEditRole(e.target.value)} style={{ width: '100%', borderRadius: 8, border: '1px solid #2a2e33', background: '#181c20', color: '#fff', padding: 8, fontSize: 15, marginTop: 4 }}>
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            {editError && <div style={{ color: '#ff4d4f', marginBottom: 10 }}>{editError}</div>}
+            {editSuccess && <div style={{ color: '#5eead4', marginBottom: 10 }}>{editSuccess}</div>}
+            <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+              <button onClick={handleEditSave} style={{ background: '#5eead4', color: '#181c20', fontWeight: 700, border: 'none', borderRadius: 8, padding: '10px 28px', fontSize: 16, cursor: 'pointer' }}>Save</button>
+              <button onClick={closeEdit} style={{ background: '#23272b', color: '#fff', fontWeight: 700, border: '1px solid #5eead4', borderRadius: 8, padding: '10px 28px', fontSize: 16, cursor: 'pointer' }}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 
