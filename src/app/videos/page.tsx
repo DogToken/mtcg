@@ -65,13 +65,17 @@ export default async function VideosPage() {
           {videos.length === 0 ? (
             <p style={{ color: '#b3b8c2', fontSize: 18 }}>No videos yet. Be the first to post one!</p>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              gap: 32,
+            }}>
               {videos.map(video => (
                 <div key={video._id} style={{ background: 'rgba(24,28,32,0.98)', borderRadius: 12, padding: 18, boxShadow: '0 2px 8px 0 rgba(0,255,255,0.04)' }}>
                   {getEmbedUrl(video.url) ? (
                     <iframe
                       width="100%"
-                      height="320"
+                      height="220"
                       src={getEmbedUrl(video.url) as string}
                       title={video.description}
                       frameBorder="0"
