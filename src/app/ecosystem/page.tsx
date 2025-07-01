@@ -97,7 +97,7 @@ export default function EcosystemPage() {
       padding: '40px 0',
     }}>
       <Header />
-      <main style={{ width: '100%', maxWidth: 900, padding: '0 32px' }}>
+      <main style={{ width: '100%', maxWidth: 700, padding: '0 32px' }}>
         <section style={{
           background: 'rgba(34, 38, 44, 0.95)',
           borderRadius: 16,
@@ -110,7 +110,7 @@ export default function EcosystemPage() {
             We are a group of friends supporting each other and content creation on <a href="https://www.mintme.com" target="_blank" rel="noopener noreferrer" style={{ color: '#5eead4', textDecoration: 'underline' }}>mintme.com</a>.<br />
             Explore our community tokens, creators, and projects below!
           </p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 28 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
             {people.map(person => (
               <div key={person.token} style={{
                 background: 'rgba(24,28,32,0.98)',
@@ -120,15 +120,20 @@ export default function EcosystemPage() {
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'flex-start',
+                minHeight: 210,
+                maxWidth: 520,
+                width: '100%',
+                margin: '0 auto',
                 gap: 10,
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 8 }}>
                   <img src={person.image} alt={person.name} style={{ width: 54, height: 54, borderRadius: '50%', border: '2px solid #5eead4', objectFit: 'cover', boxShadow: '0 0 8px #00ffff' }} />
                   <a href={person.profileUrl} style={{ color: '#fff', fontWeight: 700, fontSize: 20, textDecoration: 'underline', transition: 'color 0.2s' }}>{person.name}</a>
                 </div>
-                <div style={{ color: '#b3b8c2', fontSize: 16, marginBottom: 8 }}>{person.description}</div>
-                <div style={{ color: '#fff', fontSize: 15, marginBottom: 10 }}>{person.roles}</div>
-                <div style={{ display: 'flex', gap: 12 }}>
+                <div style={{ color: '#b3b8c2', fontSize: 16, marginBottom: 4 }}>{person.description}</div>
+                <div style={{ color: '#fff', fontSize: 15, marginBottom: 6 }}>{person.roles}</div>
+                <div style={{ color: '#b3b8c2', fontSize: 15, marginBottom: 10, fontStyle: 'italic' }}>This is a short dummy description about {person.name} and their contribution to the community. More info coming soon.</div>
+                <div style={{ display: 'flex', gap: 12, marginTop: 'auto' }}>
                   <a href={person.readUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#fff', background: '#5eead4', borderRadius: 8, padding: '8px 18px', fontWeight: 700, textDecoration: 'none', fontSize: 15 }}>Read</a>
                   <a href={person.tradeUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#fff', background: '#23272b', border: '1px solid #5eead4', borderRadius: 8, padding: '8px 18px', fontWeight: 700, textDecoration: 'none', fontSize: 15 }}>Trade</a>
                 </div>
