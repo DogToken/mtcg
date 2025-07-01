@@ -32,19 +32,17 @@ export default function Header({ editableHeader }: HeaderProps) {
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
-  // Fetch header info from API
+  // Always fetch header info from API on mount
   React.useEffect(() => {
-    if (editableHeader) {
-      setLoading(true);
-      fetch("/api/admin/siteinfo")
-        .then(res => res.json())
-        .then(data => {
-          setHeaderText(data.info?.header || "Community Group");
-          setLogoUrl(data.info?.logo || "");
-        })
-        .finally(() => setLoading(false));
-    }
-  }, [editableHeader]);
+    setLoading(true);
+    fetch("/api/admin/siteinfo")
+      .then(res => res.json())
+      .then(data => {
+        setHeaderText(data.info?.header || "Community Group");
+        setLogoUrl(data.info?.logo || "");
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
   // Save header info to API
   const handleSave = async () => {

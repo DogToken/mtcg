@@ -308,18 +308,9 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(90deg, #181c20 0%, #23272b 100%)',
-      color: '#fff',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'flex-start',
-      padding: '40px 0',
-    }}>
+    <>
       <Header editableHeader />
-      <main style={{ width: '100%', maxWidth: 900, padding: '0 32px' }}>
+      <main style={{ width: '100%', maxWidth: 900, margin: '0 auto', padding: '0 32px' }}>
         <h2 style={{ fontSize: 32, fontWeight: 700, marginBottom: 32 }}>Admin Dashboard</h2>
         <div style={{ display: 'flex', gap: 18, marginBottom: 32 }}>
           <button onClick={() => setSelectedTab('Users')} style={{ color: selectedTab === 'Users' ? '#fff' : '#5eead4', background: selectedTab === 'Users' ? 'rgba(94,234,212,0.08)' : 'none', fontWeight: 700, fontSize: 18, border: 'none', borderRadius: 8, padding: '10px 24px', cursor: 'pointer', transition: 'background 0.2s, color 0.2s' }}>Users</button>
@@ -524,6 +515,6 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 } 
