@@ -26,7 +26,7 @@ function getEmbedUrl(url: string) {
 async function getAllVideos(): Promise<Video[]> {
   const client = await clientPromise;
   const db = client.db();
-  const videos = await db.collection("videos").find({}).sort({ date: -1 }).toArray();
+  const videos = await db.collection("videos").find({}).sort({ _id: -1 }).toArray();
   return videos.map((video: Document) => ({
     _id: video._id.toString(),
     url: video.url,

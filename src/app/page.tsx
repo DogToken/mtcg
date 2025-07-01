@@ -50,7 +50,7 @@ async function getLastBlogPosts(): Promise<BlogPost[]> {
 async function getLastVideos(): Promise<Video[]> {
   const client = await clientPromise;
   const db = client.db();
-  const videos = await db.collection("videos").find({}).sort({ date: -1 }).limit(5).toArray();
+  const videos = await db.collection("videos").find({}).sort({ _id: -1 }).limit(5).toArray();
   return videos.map((video: Document) => ({
     _id: video._id.toString(),
     url: video.url,
