@@ -81,6 +81,9 @@ export default function Footer() {
       <div style={{ textAlign: 'center', color: '#b3b8c2', fontSize: 15, marginTop: 32, opacity: 0.7 }}>
         &copy; {new Date().getFullYear()} Community Group. All rights reserved.
       </div>
+      <div style={{ fontSize: 8, color: '#b3b8c2', marginTop: 4, textAlign: 'center' }}>
+        made with <span role="img" aria-label="heart">❤️</span> by Doggo <span role="img" aria-label="paw">🐾</span> using nextjs
+      </div>
     </footer>
   );
 } 
