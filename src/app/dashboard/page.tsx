@@ -19,6 +19,19 @@ interface BlogPost {
   };
 }
 
+// Add Video type
+interface Video {
+  _id: string;
+  url: string;
+  description: string;
+  date?: string;
+  author?: {
+    name?: string;
+    email?: string;
+    image?: string;
+  };
+}
+
 export default function DashboardPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -32,6 +45,13 @@ export default function DashboardPage() {
   const [selectedBlogTab, setSelectedBlogTab] = useState<'Post' | 'MyPosts'>('Post');
   const [myPosts, setMyPosts] = useState<BlogPost[]>([]);
   const [loadingPosts, setLoadingPosts] = useState(false);
+  const [selectedVideoTab, setSelectedVideoTab] = useState<'Post' | 'MyVideos'>('Post');
+  const [myVideos, setMyVideos] = useState<Video[]>([]);
+  const [videoUrl, setVideoUrl] = useState("");
+  const [videoDesc, setVideoDesc] = useState("");
+  const [videoError, setVideoError] = useState("");
+  const [videoSuccess, setVideoSuccess] = useState("");
+  const [loadingVideos, setLoadingVideos] = useState(false);
   const profileImgSrc = session?.user?.image || "/profile.png";
 
   React.useEffect(() => {
@@ -48,12 +68,23 @@ export default function DashboardPage() {
     setLoadingPosts(false);
   };
 
+  const fetchMyVideos = async () => {
+    setLoadingVideos(true);
+    const res = await fetch(`/api/videos`);
+    const data = await res.json();
+    setMyVideos((data.videos || []).filter((v: Video) => v.author?.email === session?.user?.email));
+    setLoadingVideos(false);
+  };
+
   React.useEffect(() => {
     if (selectedSection === 'Blog' && selectedBlogTab === 'MyPosts' && session?.user?.email) {
       fetchMyPosts();
     }
+    if (selectedSection === 'Videos' && selectedVideoTab === 'MyVideos' && session?.user?.email) {
+      fetchMyVideos();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedSection, selectedBlogTab, session?.user?.email]);
+  }, [selectedSection, selectedBlogTab, selectedVideoTab, session?.user?.email]);
 
   const handlePost = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,10 +108,38 @@ export default function DashboardPage() {
     }
   };
 
+  const handlePostVideo = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setVideoError("");
+    setVideoSuccess("");
+    if (!videoUrl || !videoDesc) {
+      setVideoError("URL and description are required.");
+      return;
+    }
+    const res = await fetch("/api/videos", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url: videoUrl, description: videoDesc }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      setVideoError(data.error || "Failed to post video.");
+    } else {
+      setVideoSuccess("Video posted!");
+      setVideoUrl(""); setVideoDesc("");
+    }
+  };
+
   const handleDeletePost = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this post?')) return;
     await fetch(`/api/blogpost?id=${id}`, { method: 'DELETE' });
     setMyPosts(myPosts.filter(p => p._id !== id));
+  };
+
+  const handleDeleteVideo = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this video?')) return;
+    await fetch(`/api/videos?id=${id}`, { method: 'DELETE' });
+    setMyVideos(myVideos.filter(v => v._id !== id));
   };
 
   if (status === "loading") {
@@ -278,8 +337,102 @@ export default function DashboardPage() {
               marginLeft: 'auto',
               marginRight: 'auto',
             }}>
-              <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 18 }}>Post a Video</h2>
-              <div style={{ color: '#b3b8c2', fontSize: 16 }}>Video upload form coming soon...</div>
+              <div style={{ display: 'flex', gap: 24, marginBottom: 18 }}>
+                <button
+                  onClick={() => setSelectedVideoTab('Post')}
+                  style={{
+                    color: selectedVideoTab === 'Post' ? '#fff' : '#5eead4',
+                    background: selectedVideoTab === 'Post' ? 'rgba(94,234,212,0.08)' : 'none',
+                    fontWeight: 600,
+                    fontSize: 18,
+                    border: 'none',
+                    borderRadius: 8,
+                    padding: '8px 24px',
+                    cursor: 'pointer',
+                    transition: 'background 0.2s, color 0.2s',
+                  }}
+                >
+                  Post a Video
+                </button>
+                <button
+                  onClick={() => setSelectedVideoTab('MyVideos')}
+                  style={{
+                    color: selectedVideoTab === 'MyVideos' ? '#fff' : '#5eead4',
+                    background: selectedVideoTab === 'MyVideos' ? 'rgba(94,234,212,0.08)' : 'none',
+                    fontWeight: 600,
+                    fontSize: 18,
+                    border: 'none',
+                    borderRadius: 8,
+                    padding: '8px 24px',
+                    cursor: 'pointer',
+                    transition: 'background 0.2s, color 0.2s',
+                  }}
+                >
+                  My Videos
+                </button>
+              </div>
+              {selectedVideoTab === 'Post' && (
+                <>
+                  <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 18 }}>Post a Video</h2>
+                  <form className="login-form" onSubmit={handlePostVideo}>
+                    <input
+                      type="text"
+                      placeholder="YouTube URL"
+                      className="login-input"
+                      value={videoUrl}
+                      onChange={e => setVideoUrl(e.target.value)}
+                      required
+                    />
+                    <textarea
+                      placeholder="Description"
+                      className="login-input"
+                      style={{ minHeight: 80, resize: 'vertical' }}
+                      value={videoDesc}
+                      onChange={e => setVideoDesc(e.target.value)}
+                      required
+                    />
+                    <button type="submit" className="login-btn">Post</button>
+                    {videoError && <div style={{ color: '#ff4d4f', marginTop: 12, textAlign: 'center' }}>{videoError}</div>}
+                    {videoSuccess && <div style={{ color: '#5eead4', marginTop: 12, textAlign: 'center' }}>{videoSuccess}</div>}
+                  </form>
+                </>
+              )}
+              {selectedVideoTab === 'MyVideos' && (
+                <div style={{ marginTop: 18 }}>
+                  {loadingVideos ? (
+                    <div style={{ color: '#5eead4', textAlign: 'center' }}>Loading...</div>
+                  ) : myVideos.length === 0 ? (
+                    <div style={{ color: '#b3b8c2', fontSize: 16, textAlign: 'center' }}>You have no videos yet.</div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+                      {myVideos.map(video => (
+                        <div key={video._id} style={{
+                          background: 'rgba(24,28,32,0.98)',
+                          borderRadius: 12,
+                          padding: 18,
+                          boxShadow: '0 2px 8px 0 rgba(0,255,255,0.04)',
+                          display: 'flex',
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          gap: 18,
+                        }}>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontWeight: 700, fontSize: 18 }}>{video.url}</div>
+                            <div style={{ color: '#b3b8c2', fontSize: 15 }}>{video.date ? new Date(video.date).toLocaleDateString() : ''}</div>
+                            <div style={{ color: '#b3b8c2', fontSize: 15, marginTop: 6 }}>{video.description}</div>
+                          </div>
+                          <button
+                            onClick={() => handleDeleteVideo(video._id)}
+                            style={{ background: '#ff4d4f', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 16px', fontWeight: 700, cursor: 'pointer' }}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </section>
           )}
           {selectedSection === 'Art' && (

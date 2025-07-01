@@ -2,9 +2,15 @@
 import React, { useState, useRef } from 'react';
 
 interface Video {
-  id: number;
-  title: string;
+  _id: string;
   url: string;
+  description: string;
+  date?: string;
+  author?: {
+    name?: string;
+    email?: string;
+    image?: string;
+  };
 }
 
 export default function VideoSlider({ videos }: { videos: Video[] }) {
@@ -20,6 +26,12 @@ export default function VideoSlider({ videos }: { videos: Video[] }) {
     if (!sliderRef.current) return;
     const idx = Math.round(sliderRef.current.scrollLeft / 340);
     setActive(idx);
+  };
+
+  // Helper to extract YouTube embed URL
+  const getEmbedUrl = (url: string) => {
+    const match = url.match(/(?:youtu.be\/|youtube.com\/(?:watch\?v=|embed\/|v\/|shorts\/)?)([\w-]{11})/);
+    return match ? `https://www.youtube.com/embed/${match[1]}` : url;
   };
 
   return (
@@ -39,7 +51,7 @@ export default function VideoSlider({ videos }: { videos: Video[] }) {
       >
         {videos.map((video, idx) => (
           <div
-            key={video.id}
+            key={video._id}
             style={{
               minWidth: 320,
               maxWidth: 340,
@@ -55,17 +67,19 @@ export default function VideoSlider({ videos }: { videos: Video[] }) {
               alignItems: 'center',
             }}
           >
-            <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 8 }}>{video.title}</div>
             <iframe
               width="280"
               height="158"
-              src={video.url}
-              title={video.title}
+              src={getEmbedUrl(video.url)}
+              title={video.description}
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
               style={{ borderRadius: 10, marginBottom: 8 }}
             />
+            <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 6 }}>{video.description}</div>
+            <div style={{ color: '#b3b8c2', fontSize: 14 }}>{video.date ? new Date(video.date).toLocaleDateString() : ''}</div>
+            <div style={{ color: '#fff', fontWeight: 500, fontSize: 14 }}>{video.author?.name || ''}</div>
           </div>
         ))}
       </div>

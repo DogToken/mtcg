@@ -20,6 +20,18 @@ interface BlogPost {
   };
 }
 
+interface Video {
+  _id: string;
+  url: string;
+  description: string;
+  date?: string;
+  author?: {
+    name?: string;
+    email?: string;
+    image?: string;
+  };
+}
+
 async function getLastBlogPosts(): Promise<BlogPost[]> {
   const client = await clientPromise;
   const db = client.db();
@@ -35,14 +47,23 @@ async function getLastBlogPosts(): Promise<BlogPost[]> {
   }));
 }
 
+async function getLastVideos(): Promise<Video[]> {
+  const client = await clientPromise;
+  const db = client.db();
+  const videos = await db.collection("videos").find({}).sort({ date: -1 }).limit(5).toArray();
+  return videos.map((video: Document) => ({
+    _id: video._id.toString(),
+    url: video.url,
+    description: video.description,
+    date: video.date,
+    author: video.author,
+  }));
+}
+
 export default async function Home() {
   const blogPosts = await getLastBlogPosts();
-  // Placeholder data for videos and art
-  const videos = [
-    { id: 1, title: "Community Highlights #1", url: "https://www.youtube.com/embed/dQw4w9WgXcQ" },
-    { id: 2, title: "How to Join", url: "https://www.youtube.com/embed/3GwjfUFyY6M" },
-    { id: 3, title: "Meet the Team", url: "https://www.youtube.com/embed/oHg5SJYRHA0" },
-  ];
+  const videos = await getLastVideos();
+  // Placeholder data for art
   const art = [
     { id: 1, title: "Neon City", image: "/art1.jpg" },
     { id: 2, title: "Community Spirit", image: "/art2.jpg" },
