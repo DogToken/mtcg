@@ -13,6 +13,23 @@ type User = {
   image?: string;
 };
 
+const defaultFooterContent: FooterContent = {
+  about: "A modern, open community for sharing, learning, and connecting. Join us on our journey!",
+  links: [
+    { label: "Home", href: "/" },
+    { label: "Blog", href: "/blog" },
+    { label: "Videos", href: "/videos" },
+    { label: "Art", href: "/art" },
+    { label: "Info", href: "/info" },
+    { label: "Ecosystem", href: "/ecosystem" },
+  ],
+  socials: [
+    { label: "Twitter", href: "https://twitter.com/" },
+    { label: "Discord", href: "https://discord.com/" },
+    { label: "GitHub", href: "https://github.com/" },
+  ],
+};
+
 export default function AdminDashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -58,7 +75,7 @@ export default function AdminDashboard() {
     setFooterLoading(true);
     const res = await fetch('/api/admin/footer');
     const data = await res.json();
-    setFooterContent(data.content);
+    setFooterContent(data.content || defaultFooterContent);
     setFooterLoading(false);
   };
 
