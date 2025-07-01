@@ -75,6 +75,8 @@ async function getLastArt(): Promise<Art[]> {
   }));
 }
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const blogPosts = await getLastBlogPosts();
   const videos = await getLastVideos();
