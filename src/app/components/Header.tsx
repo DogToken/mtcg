@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import UserImage from "./UserImage";
 
-const navItems = ["Home", "Blog", "Videos", "Art", "Info", "Ecosystem"];
+const navItems = ["Home", "Blog", "Videos", "Art", "Ecosystem"];
 
 export default function Header() {
   const { data: session } = useSession();
