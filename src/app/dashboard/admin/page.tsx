@@ -48,6 +48,18 @@ export default function AdminDashboard() {
   const [editRole, setEditRole] = useState("user");
   const [editError, setEditError] = useState("");
   const [editSuccess, setEditSuccess] = useState("");
+  const [ecoWelcome, setEcoWelcome] = useState<string>("");
+  const [ecoWelcomeLoading, setEcoWelcomeLoading] = useState(false);
+  const [ecoWelcomeSuccess, setEcoWelcomeSuccess] = useState("");
+  const [ecoWelcomeError, setEcoWelcomeError] = useState("");
+  const [ecoEngagement, setEcoEngagement] = useState<string>("");
+  const [ecoEngagementLoading, setEcoEngagementLoading] = useState(false);
+  const [ecoEngagementSuccess, setEcoEngagementSuccess] = useState("");
+  const [ecoEngagementError, setEcoEngagementError] = useState("");
+  const [ecoResources, setEcoResources] = useState<string>("");
+  const [ecoResourcesLoading, setEcoResourcesLoading] = useState(false);
+  const [ecoResourcesSuccess, setEcoResourcesSuccess] = useState("");
+  const [ecoResourcesError, setEcoResourcesError] = useState("");
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -64,6 +76,9 @@ export default function AdminDashboard() {
       });
       if (selectedTab === 'Settings') {
         fetchFooter();
+        fetchEcoWelcome();
+        fetchEcoEngagement();
+        fetchEcoResources();
       }
     }
   }, [status, session, router, selectedTab]);
@@ -145,6 +160,68 @@ export default function AdminDashboard() {
     }
   };
 
+  const fetchEcoWelcome = async () => {
+    setEcoWelcomeLoading(true);
+    const res = await fetch('/api/admin/ecosystem-welcome');
+    const data = await res.json();
+    setEcoWelcome(data.content || "");
+    setEcoWelcomeLoading(false);
+  };
+  const fetchEcoEngagement = async () => {
+    setEcoEngagementLoading(true);
+    const res = await fetch('/api/admin/ecosystem-engagement');
+    const data = await res.json();
+    setEcoEngagement(data.content || "");
+    setEcoEngagementLoading(false);
+  };
+  const fetchEcoResources = async () => {
+    setEcoResourcesLoading(true);
+    const res = await fetch('/api/admin/ecosystem-resources');
+    const data = await res.json();
+    setEcoResources(data.content || "");
+    setEcoResourcesLoading(false);
+  };
+
+  const handleEcoWelcomeSave = async () => {
+    setEcoWelcomeLoading(true);
+    setEcoWelcomeSuccess("");
+    setEcoWelcomeError("");
+    const res = await fetch('/api/admin/ecosystem-welcome', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: ecoWelcome }),
+    });
+    if (res.ok) setEcoWelcomeSuccess('Saved!');
+    else setEcoWelcomeError('Failed to save.');
+    setEcoWelcomeLoading(false);
+  };
+  const handleEcoEngagementSave = async () => {
+    setEcoEngagementLoading(true);
+    setEcoEngagementSuccess("");
+    setEcoEngagementError("");
+    const res = await fetch('/api/admin/ecosystem-engagement', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: ecoEngagement }),
+    });
+    if (res.ok) setEcoEngagementSuccess('Saved!');
+    else setEcoEngagementError('Failed to save.');
+    setEcoEngagementLoading(false);
+  };
+  const handleEcoResourcesSave = async () => {
+    setEcoResourcesLoading(true);
+    setEcoResourcesSuccess("");
+    setEcoResourcesError("");
+    const res = await fetch('/api/admin/ecosystem-resources', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: ecoResources }),
+    });
+    if (res.ok) setEcoResourcesSuccess('Saved!');
+    else setEcoResourcesError('Failed to save.');
+    setEcoResourcesLoading(false);
+  };
+
   if (status === "loading" || loading) {
     return <div style={{ color: '#5eead4', textAlign: 'center', marginTop: 80 }}>Loading...</div>;
   }
@@ -201,39 +278,83 @@ export default function AdminDashboard() {
           </>
         )}
         {selectedTab === 'Settings' && (
-          <section style={{ background: 'rgba(34, 38, 44, 0.95)', borderRadius: 16, padding: 32, boxShadow: '0 2px 16px 0 rgba(0,255,255,0.06)', maxWidth: 600, margin: '0 auto' }}>
-            <h3 style={{ fontSize: 24, fontWeight: 700, marginBottom: 18 }}>Footer Settings</h3>
-            {footerLoading && <div style={{ color: '#5eead4', marginBottom: 12 }}>Loading...</div>}
-            {footerError && <div style={{ color: '#ff4d4f', marginBottom: 12 }}>{footerError}</div>}
-            {footerSuccess && <div style={{ color: '#5eead4', marginBottom: 12 }}>{footerSuccess}</div>}
-            {footerContent && (
-              <form onSubmit={e => { e.preventDefault(); handleFooterSave(); }}>
-                <div style={{ marginBottom: 18 }}>
-                  <label style={{ fontWeight: 600, fontSize: 16 }}>About</label>
-                  <textarea value={footerContent.about} onChange={e => handleFooterChange('about', e.target.value)} style={{ width: '100%', minHeight: 60, marginTop: 6, borderRadius: 8, border: '1px solid #2a2e33', background: '#181c20', color: '#fff', padding: 10, fontSize: 15 }} />
-                </div>
-                <div style={{ marginBottom: 18 }}>
-                  <label style={{ fontWeight: 600, fontSize: 16 }}>Quick Links</label>
-                  {footerContent.links.map((link, idx) => (
-                    <div key={idx} style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
-                      <input value={link.label} onChange={e => handleFooterLinkChange(idx, 'label', e.target.value)} placeholder="Label" style={{ flex: 1, borderRadius: 6, border: '1px solid #2a2e33', background: '#23272b', color: '#fff', padding: 6, fontSize: 15 }} />
-                      <input value={link.href} onChange={e => handleFooterLinkChange(idx, 'href', e.target.value)} placeholder="URL" style={{ flex: 2, borderRadius: 6, border: '1px solid #2a2e33', background: '#23272b', color: '#fff', padding: 6, fontSize: 15 }} />
-                    </div>
-                  ))}
-                </div>
-                <div style={{ marginBottom: 18 }}>
-                  <label style={{ fontWeight: 600, fontSize: 16 }}>Socials</label>
-                  {footerContent.socials.map((social, idx) => (
-                    <div key={idx} style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
-                      <input value={social.label} onChange={e => handleFooterSocialChange(idx, 'label', e.target.value)} placeholder="Label" style={{ flex: 1, borderRadius: 6, border: '1px solid #2a2e33', background: '#23272b', color: '#fff', padding: 6, fontSize: 15 }} />
-                      <input value={social.href} onChange={e => handleFooterSocialChange(idx, 'href', e.target.value)} placeholder="URL" style={{ flex: 2, borderRadius: 6, border: '1px solid #2a2e33', background: '#23272b', color: '#fff', padding: 6, fontSize: 15 }} />
-                    </div>
-                  ))}
-                </div>
-                <button type="submit" style={{ background: '#5eead4', color: '#181c20', fontWeight: 700, border: 'none', borderRadius: 8, padding: '10px 28px', fontSize: 17, cursor: 'pointer', marginTop: 8 }}>Save</button>
-              </form>
-            )}
-          </section>
+          <>
+            <section style={{ background: 'rgba(34, 38, 44, 0.95)', borderRadius: 16, padding: 32, boxShadow: '0 2px 16px 0 rgba(0,255,255,0.06)', maxWidth: 600, margin: '0 auto' }}>
+              <h3 style={{ fontSize: 24, fontWeight: 700, marginBottom: 18 }}>Footer Settings</h3>
+              {footerLoading && <div style={{ color: '#5eead4', marginBottom: 12 }}>Loading...</div>}
+              {footerError && <div style={{ color: '#ff4d4f', marginBottom: 12 }}>{footerError}</div>}
+              {footerSuccess && <div style={{ color: '#5eead4', marginBottom: 12 }}>{footerSuccess}</div>}
+              {footerContent && (
+                <form onSubmit={e => { e.preventDefault(); handleFooterSave(); }}>
+                  <div style={{ marginBottom: 18 }}>
+                    <label style={{ fontWeight: 600, fontSize: 16 }}>About</label>
+                    <textarea value={footerContent.about} onChange={e => handleFooterChange('about', e.target.value)} style={{ width: '100%', minHeight: 60, marginTop: 6, borderRadius: 8, border: '1px solid #2a2e33', background: '#181c20', color: '#fff', padding: 10, fontSize: 15 }} />
+                  </div>
+                  <div style={{ marginBottom: 18 }}>
+                    <label style={{ fontWeight: 600, fontSize: 16 }}>Quick Links</label>
+                    {footerContent.links.map((link, idx) => (
+                      <div key={idx} style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
+                        <input value={link.label} onChange={e => handleFooterLinkChange(idx, 'label', e.target.value)} placeholder="Label" style={{ flex: 1, borderRadius: 6, border: '1px solid #2a2e33', background: '#23272b', color: '#fff', padding: 6, fontSize: 15 }} />
+                        <input value={link.href} onChange={e => handleFooterLinkChange(idx, 'href', e.target.value)} placeholder="URL" style={{ flex: 2, borderRadius: 6, border: '1px solid #2a2e33', background: '#23272b', color: '#fff', padding: 6, fontSize: 15 }} />
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ marginBottom: 18 }}>
+                    <label style={{ fontWeight: 600, fontSize: 16 }}>Socials</label>
+                    {footerContent.socials.map((social, idx) => (
+                      <div key={idx} style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
+                        <input value={social.label} onChange={e => handleFooterSocialChange(idx, 'label', e.target.value)} placeholder="Label" style={{ flex: 1, borderRadius: 6, border: '1px solid #2a2e33', background: '#23272b', color: '#fff', padding: 6, fontSize: 15 }} />
+                        <input value={social.href} onChange={e => handleFooterSocialChange(idx, 'href', e.target.value)} placeholder="URL" style={{ flex: 2, borderRadius: 6, border: '1px solid #2a2e33', background: '#23272b', color: '#fff', padding: 6, fontSize: 15 }} />
+                      </div>
+                    ))}
+                  </div>
+                  <button type="submit" style={{ background: '#5eead4', color: '#181c20', fontWeight: 700, border: 'none', borderRadius: 8, padding: '10px 28px', fontSize: 17, cursor: 'pointer', marginTop: 8 }}>Save</button>
+                </form>
+              )}
+            </section>
+            <div style={{ marginTop: 40, background: 'rgba(34, 38, 44, 0.95)', borderRadius: 16, padding: 24, boxShadow: '0 2px 16px 0 rgba(0,255,255,0.06)' }}>
+              <div style={{ fontWeight: 700, fontSize: 22, color: '#fff', marginBottom: 10 }}>Ecosystem Welcome Section</div>
+              <textarea
+                value={ecoWelcome}
+                onChange={e => setEcoWelcome(e.target.value)}
+                rows={4}
+                style={{ width: '100%', fontSize: 16, borderRadius: 8, border: '1px solid #5eead4', padding: 12, marginBottom: 10, background: '#181c20', color: '#fff' }}
+                placeholder="Welcome message for the top of the ecosystem page..."
+              />
+              <button onClick={handleEcoWelcomeSave} disabled={ecoWelcomeLoading} style={{ background: '#5eead4', color: '#181c20', border: 'none', borderRadius: 8, padding: '8px 18px', fontWeight: 700, cursor: 'pointer', marginRight: 12 }}>Save</button>
+              {ecoWelcomeLoading && <span style={{ color: '#5eead4', marginLeft: 10 }}>Saving...</span>}
+              {ecoWelcomeSuccess && <span style={{ color: '#5eead4', marginLeft: 10 }}>{ecoWelcomeSuccess}</span>}
+              {ecoWelcomeError && <span style={{ color: '#ff4d4f', marginLeft: 10 }}>{ecoWelcomeError}</span>}
+            </div>
+            <div style={{ marginTop: 32, background: 'rgba(34, 38, 44, 0.95)', borderRadius: 16, padding: 24, boxShadow: '0 2px 16px 0 rgba(0,255,255,0.06)' }}>
+              <div style={{ fontWeight: 700, fontSize: 22, color: '#fff', marginBottom: 10 }}>Ecosystem Engagement Section</div>
+              <textarea
+                value={ecoEngagement}
+                onChange={e => setEcoEngagement(e.target.value)}
+                rows={4}
+                style={{ width: '100%', fontSize: 16, borderRadius: 8, border: '1px solid #5eead4', padding: 12, marginBottom: 10, background: '#181c20', color: '#fff' }}
+                placeholder="Engagement opportunities to show above profiles..."
+              />
+              <button onClick={handleEcoEngagementSave} disabled={ecoEngagementLoading} style={{ background: '#5eead4', color: '#181c20', border: 'none', borderRadius: 8, padding: '8px 18px', fontWeight: 700, cursor: 'pointer', marginRight: 12 }}>Save</button>
+              {ecoEngagementLoading && <span style={{ color: '#5eead4', marginLeft: 10 }}>Saving...</span>}
+              {ecoEngagementSuccess && <span style={{ color: '#5eead4', marginLeft: 10 }}>{ecoEngagementSuccess}</span>}
+              {ecoEngagementError && <span style={{ color: '#ff4d4f', marginLeft: 10 }}>{ecoEngagementError}</span>}
+            </div>
+            <div style={{ marginTop: 32, background: 'rgba(34, 38, 44, 0.95)', borderRadius: 16, padding: 24, boxShadow: '0 2px 16px 0 rgba(0,255,255,0.06)' }}>
+              <div style={{ fontWeight: 700, fontSize: 22, color: '#fff', marginBottom: 10 }}>Ecosystem Resource Hub Section</div>
+              <textarea
+                value={ecoResources}
+                onChange={e => setEcoResources(e.target.value)}
+                rows={4}
+                style={{ width: '100%', fontSize: 16, borderRadius: 8, border: '1px solid #5eead4', padding: 12, marginBottom: 10, background: '#181c20', color: '#fff' }}
+                placeholder="Resource hub content to show below profiles..."
+              />
+              <button onClick={handleEcoResourcesSave} disabled={ecoResourcesLoading} style={{ background: '#5eead4', color: '#181c20', border: 'none', borderRadius: 8, padding: '8px 18px', fontWeight: 700, cursor: 'pointer', marginRight: 12 }}>Save</button>
+              {ecoResourcesLoading && <span style={{ color: '#5eead4', marginLeft: 10 }}>Saving...</span>}
+              {ecoResourcesSuccess && <span style={{ color: '#5eead4', marginLeft: 10 }}>{ecoResourcesSuccess}</span>}
+              {ecoResourcesError && <span style={{ color: '#ff4d4f', marginLeft: 10 }}>{ecoResourcesError}</span>}
+            </div>
+          </>
         )}
       </main>
       {editingUser && (

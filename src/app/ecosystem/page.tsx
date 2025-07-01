@@ -1,7 +1,36 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
 
+function SectionCard({ children, style }: React.PropsWithChildren<{ style?: React.CSSProperties }>) {
+  return (
+    <section style={{
+      background: 'rgba(34, 38, 44, 0.95)',
+      borderRadius: 16,
+      padding: 32,
+      boxShadow: '0 2px 16px 0 rgba(0,255,255,0.06)',
+      marginBottom: 32,
+      ...style,
+    }}>
+      {children}
+    </section>
+  );
+}
+
+const defaultWelcome = `<h2 style='font-size:28px;font-weight:700;margin-bottom:16px'>Ecosystem</h2><p style='color:#b3b8c2;font-size:18px;margin-bottom:28px'>We are a group of friends supporting each other and content creation on <a href="https://www.mintme.com" target="_blank" rel="noopener noreferrer" style="color:#5eead4;text-decoration:underline">mintme.com</a>.<br />Explore our community tokens, creators, and projects below!</p>`;
+const defaultEngagement = `<ul style='color:#b3b8c2;font-size:17px;line-height:1.7;margin:0 0 0 18px'><li>Join or start a sub-group or club</li><li>Participate in monthly challenges or contests</li><li>Volunteer for events or projects</li><li>Contribute to blog, art, or video sections</li><li>Attend upcoming events</li></ul>`;
+const defaultResources = `<ul style='color:#b3b8c2;font-size:17px;line-height:1.7;margin:0 0 0 18px'><li><a href='/info' style='color:#5eead4'>Community Guidelines</a></li><li><a href='/register' style='color:#5eead4'>Onboarding Guide</a></li><li><a href='/faq' style='color:#5eead4'>FAQ / Help Center</a></li><li><a href='/dashboard/admin' style='color:#5eead4'>Admin Directory</a></li><li><a href='/blog' style='color:#5eead4'>Event Calendar</a></li></ul>`;
+
 export default function EcosystemPage() {
+  const [welcome, setWelcome] = useState<string | null>(null);
+  const [engagement, setEngagement] = useState<string | null>(null);
+  const [resources, setResources] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch('/api/admin/ecosystem-welcome').then(res => res.json()).then(data => setWelcome(data.content));
+    fetch('/api/admin/ecosystem-engagement').then(res => res.json()).then(data => setEngagement(data.content));
+    fetch('/api/admin/ecosystem-resources').then(res => res.json()).then(data => setResources(data.content));
+  }, []);
+
   const people = [
     {
       name: 'DWMW',
@@ -98,18 +127,17 @@ export default function EcosystemPage() {
     }}>
       <Header />
       <main style={{ width: '100%', maxWidth: 700, padding: '0 32px' }}>
-        <section style={{
-          background: 'rgba(34, 38, 44, 0.95)',
-          borderRadius: 16,
-          padding: 32,
-          boxShadow: '0 2px 16px 0 rgba(0,255,255,0.06)',
-          marginBottom: 32,
-        }}>
-          <h2 style={{ fontSize: 28, fontWeight: 700, marginBottom: 16 }}>Ecosystem</h2>
-          <p style={{ color: '#b3b8c2', fontSize: 18, marginBottom: 28 }}>
-            We are a group of friends supporting each other and content creation on <a href="https://www.mintme.com" target="_blank" rel="noopener noreferrer" style={{ color: '#5eead4', textDecoration: 'underline' }}>mintme.com</a>.<br />
-            Explore our community tokens, creators, and projects below!
-          </p>
+        {/* Welcome Section */}
+        <SectionCard style={{ marginBottom: 32 }}>
+          <div dangerouslySetInnerHTML={{ __html: welcome || defaultWelcome }} />
+        </SectionCard>
+        {/* Engagement Section */}
+        <SectionCard style={{ marginBottom: 32 }}>
+          <div style={{ fontWeight: 700, fontSize: 22, color: '#fff', marginBottom: 10 }}>Get Involved</div>
+          <div dangerouslySetInnerHTML={{ __html: engagement || defaultEngagement }} />
+        </SectionCard>
+        {/* Profiles Section */}
+        <SectionCard style={{ background: 'rgba(34, 38, 44, 0.95)', marginBottom: 32 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
             {people.map(person => (
               <div key={person.token} style={{
@@ -118,29 +146,35 @@ export default function EcosystemPage() {
                 padding: 24,
                 boxShadow: '0 2px 8px 0 rgba(0,255,255,0.04)',
                 display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'flex-start',
-                minHeight: 210,
-                maxWidth: 520,
+                flexDirection: 'row',
+                alignItems: 'center',
+                minHeight: 120,
+                maxWidth: 800,
                 width: '100%',
                 margin: '0 auto',
-                gap: 10,
+                gap: 24,
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 8 }}>
-                  <img src={person.image} alt={person.name} style={{ width: 54, height: 54, borderRadius: '50%', border: '2px solid #5eead4', objectFit: 'cover', boxShadow: '0 0 8px #00ffff' }} />
-                  <a href={person.profileUrl} style={{ color: '#fff', fontWeight: 700, fontSize: 20, textDecoration: 'underline', transition: 'color 0.2s' }}>{person.name}</a>
+                <img src={person.image} alt={person.name} style={{ width: 64, height: 64, borderRadius: '50%', border: '2px solid #5eead4', objectFit: 'cover', boxShadow: '0 0 8px #00ffff', flexShrink: 0 }} />
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <div style={{ fontWeight: 700, fontSize: 22, color: '#fff', marginBottom: 2 }}>{person.name}</div>
+                  <div style={{ color: '#b3b8c2', fontSize: 16 }}>{person.description}</div>
+                  <div style={{ color: '#5eead4', fontSize: 15, fontWeight: 600 }}>{person.roles}</div>
+                  <div style={{ color: '#b3b8c2', fontSize: 15, fontStyle: 'italic', marginTop: 2 }}>This is a short dummy description about {person.name} and their contribution to the community. More info coming soon.</div>
                 </div>
-                <div style={{ color: '#b3b8c2', fontSize: 16, marginBottom: 4 }}>{person.description}</div>
-                <div style={{ color: '#fff', fontSize: 15, marginBottom: 6 }}>{person.roles}</div>
-                <div style={{ color: '#b3b8c2', fontSize: 15, marginBottom: 10, fontStyle: 'italic' }}>This is a short dummy description about {person.name} and their contribution to the community. More info coming soon.</div>
-                <div style={{ display: 'flex', gap: 12, marginTop: 'auto' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'flex-end' }}>
+                  <a href={person.profileUrl} style={{ color: '#fff', background: '#23272b', border: '1px solid #5eead4', borderRadius: 8, padding: '8px 18px', fontWeight: 700, textDecoration: 'none', fontSize: 15, marginBottom: 6 }}>Profile</a>
                   <a href={person.readUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#fff', background: '#5eead4', borderRadius: 8, padding: '8px 18px', fontWeight: 700, textDecoration: 'none', fontSize: 15 }}>Read</a>
                   <a href={person.tradeUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#fff', background: '#23272b', border: '1px solid #5eead4', borderRadius: 8, padding: '8px 18px', fontWeight: 700, textDecoration: 'none', fontSize: 15 }}>Trade</a>
                 </div>
               </div>
             ))}
           </div>
-        </section>
+        </SectionCard>
+        {/* Resource Hub Section */}
+        <SectionCard style={{ marginBottom: 32 }}>
+          <div style={{ fontWeight: 700, fontSize: 22, color: '#fff', marginBottom: 10 }}>Community Resources</div>
+          <div dangerouslySetInnerHTML={{ __html: resources || defaultResources }} />
+        </SectionCard>
       </main>
     </div>
   );
