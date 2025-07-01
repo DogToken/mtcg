@@ -1,9 +1,82 @@
 'use client';
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Header from "./components/Header";
 import BlogSlider from "./components/BlogSlider";
 import VideoSlider from "./components/VideoSlider";
 import ArtSlider from "./components/ArtSlider";
+
+function HeroSlider() {
+  const [slides, setSlides] = useState<{ image: string; alt: string; text: string }[]>([]);
+  const [current, setCurrent] = useState(0);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    fetch('/api/admin/hero').then(res => res.json()).then(data => {
+      setSlides(Array.isArray(data.slides) && data.slides.length > 0 ? data.slides : [
+        { image: '/public/globe.svg', alt: 'Community', text: `<h1 style='font-size:40px;font-weight:800;margin-bottom:16px;letter-spacing:-0.04em;text-shadow:0 0 8px #00ffff,0 0 16px #ff00cc,0 0 24px #39ff14'>Welcome to the Community Group</h1><p style='font-size:22px;color:#b3b8c2;margin-bottom:0'>A modern, dark-themed community portal for sharing, learning, and connecting.</p>` }
+      ]);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (slides.length <= 1) return;
+    intervalRef.current = setInterval(() => {
+      setCurrent(c => (c + 1) % slides.length);
+    }, 5000);
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, [slides]);
+
+  if (!slides.length) return null;
+  const slide = slides[current];
+  return (
+    <section style={{
+      background: 'linear-gradient(90deg, #23272b 0%, #181c20 100%)',
+      borderRadius: 20,
+      padding: 0,
+      boxShadow: '0 2px 32px 0 rgba(0,255,255,0.08)',
+      marginBottom: 48,
+      textAlign: 'center',
+      position: 'relative',
+      minHeight: 260,
+      overflow: 'hidden',
+      display: 'flex',
+      alignItems: 'stretch',
+      justifyContent: 'center',
+    }}>
+      <img src={slide.image} alt={slide.alt} style={{
+        width: '100%',
+        height: 320,
+        objectFit: 'cover',
+        opacity: 0.25,
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        zIndex: 1,
+        pointerEvents: 'none',
+      }} />
+      <div style={{
+        position: 'relative',
+        zIndex: 2,
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: 260,
+        padding: 48,
+      }}>
+        <div dangerouslySetInnerHTML={{ __html: slide.text }} />
+      </div>
+      {slides.length > 1 && (
+        <div style={{ position: 'absolute', bottom: 18, left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: 8, zIndex: 3 }}>
+          {slides.map((_, i) => (
+            <div key={i} style={{ width: 12, height: 12, borderRadius: '50%', background: i === current ? '#5eead4' : '#23272b', border: '2px solid #5eead4', transition: 'background 0.2s' }} />
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
 
 export default function Home() {
   const [blogPosts, setBlogPosts] = useState([]);
@@ -40,28 +113,7 @@ export default function Home() {
       <Header />
       <main style={{ width: '100%', maxWidth: 900, padding: '0 32px' }}>
         {/* Hero Section */}
-        <section style={{
-          background: 'linear-gradient(90deg, #23272b 0%, #181c20 100%)',
-          borderRadius: 20,
-          padding: 48,
-          boxShadow: '0 2px 32px 0 rgba(0,255,255,0.08)',
-          marginBottom: 48,
-          textAlign: 'center',
-          position: 'relative',
-        }}>
-          <h1 style={{
-            fontSize: 40,
-            fontWeight: 800,
-            marginBottom: 16,
-            letterSpacing: '-0.04em',
-            textShadow: '0 0 8px #00ffff, 0 0 16px #ff00cc, 0 0 24px #39ff14',
-          }}>
-            Welcome to the Community Group
-          </h1>
-          <p style={{ fontSize: 22, color: '#b3b8c2', marginBottom: 0 }}>
-            A modern, dark-themed community portal for sharing, learning, and connecting.
-          </p>
-        </section>
+        <HeroSlider />
         {/* Blog Section */}
         <section style={{ marginBottom: 48 }}>
           <h2 style={{ fontSize: 28, fontWeight: 700, marginBottom: 12 }}>Blog</h2>

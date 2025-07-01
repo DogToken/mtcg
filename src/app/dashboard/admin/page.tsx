@@ -60,6 +60,10 @@ export default function AdminDashboard() {
   const [ecoResourcesLoading, setEcoResourcesLoading] = useState(false);
   const [ecoResourcesSuccess, setEcoResourcesSuccess] = useState("");
   const [ecoResourcesError, setEcoResourcesError] = useState("");
+  const [heroSlides, setHeroSlides] = useState<{ image: string; alt: string; text: string }[]>([]);
+  const [heroSlidesLoading, setHeroSlidesLoading] = useState(false);
+  const [heroSlidesSuccess, setHeroSlidesSuccess] = useState("");
+  const [heroSlidesError, setHeroSlidesError] = useState("");
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -79,6 +83,7 @@ export default function AdminDashboard() {
         fetchEcoWelcome();
         fetchEcoEngagement();
         fetchEcoResources();
+        fetchHeroSlides();
       }
     }
   }, [status, session, router, selectedTab]);
@@ -222,6 +227,46 @@ export default function AdminDashboard() {
     setEcoResourcesLoading(false);
   };
 
+  const fetchHeroSlides = async () => {
+    setHeroSlidesLoading(true);
+    const res = await fetch('/api/admin/hero');
+    const data = await res.json();
+    setHeroSlides(data.slides || []);
+    setHeroSlidesLoading(false);
+  };
+
+  const handleHeroSlideChange = (idx: number, field: 'image' | 'alt' | 'text', value: string) => {
+    setHeroSlides(prev => prev.map((slide, i) => i === idx ? { ...slide, [field]: value } : slide));
+  };
+  const handleAddHeroSlide = () => {
+    setHeroSlides(prev => [...prev, { image: '', alt: '', text: '' }]);
+  };
+  const handleRemoveHeroSlide = (idx: number) => {
+    setHeroSlides(prev => prev.filter((_, i) => i !== idx));
+  };
+  const handleMoveHeroSlide = (idx: number, dir: -1 | 1) => {
+    setHeroSlides(prev => {
+      const slides = [...prev];
+      const newIdx = idx + dir;
+      if (newIdx < 0 || newIdx >= slides.length) return slides;
+      [slides[idx], slides[newIdx]] = [slides[newIdx], slides[idx]];
+      return slides;
+    });
+  };
+  const handleHeroSlidesSave = async () => {
+    setHeroSlidesLoading(true);
+    setHeroSlidesSuccess("");
+    setHeroSlidesError("");
+    const res = await fetch('/api/admin/hero', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slides: heroSlides }),
+    });
+    if (res.ok) setHeroSlidesSuccess('Saved!');
+    else setHeroSlidesError('Failed to save.');
+    setHeroSlidesLoading(false);
+  };
+
   if (status === "loading" || loading) {
     return <div style={{ color: '#5eead4', textAlign: 'center', marginTop: 80 }}>Loading...</div>;
   }
@@ -353,6 +398,35 @@ export default function AdminDashboard() {
               {ecoResourcesLoading && <span style={{ color: '#5eead4', marginLeft: 10 }}>Saving...</span>}
               {ecoResourcesSuccess && <span style={{ color: '#5eead4', marginLeft: 10 }}>{ecoResourcesSuccess}</span>}
               {ecoResourcesError && <span style={{ color: '#ff4d4f', marginLeft: 10 }}>{ecoResourcesError}</span>}
+            </div>
+            <div style={{ marginTop: 40, background: 'rgba(34, 38, 44, 0.95)', borderRadius: 16, padding: 24, boxShadow: '0 2px 16px 0 rgba(0,255,255,0.06)' }}>
+              <div style={{ fontWeight: 700, fontSize: 22, color: '#fff', marginBottom: 10 }}>Home Page Hero Slides</div>
+              {heroSlides.map((slide, idx) => (
+                <div key={idx} style={{ marginBottom: 24, border: '1px solid #5eead4', borderRadius: 8, padding: 16, background: '#181c20' }}>
+                  <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 8 }}>
+                    <input type="text" value={slide.image} onChange={e => handleHeroSlideChange(idx, 'image', e.target.value)} placeholder="Image URL" style={{ flex: 2, fontSize: 15, borderRadius: 6, border: '1px solid #5eead4', padding: 8, background: '#23272b', color: '#fff' }} />
+                    <input type="text" value={slide.alt} onChange={e => handleHeroSlideChange(idx, 'alt', e.target.value)} placeholder="Alt text" style={{ flex: 1, fontSize: 15, borderRadius: 6, border: '1px solid #5eead4', padding: 8, background: '#23272b', color: '#fff' }} />
+                    <button onClick={() => handleRemoveHeroSlide(idx)} style={{ background: '#ff4d4f', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 12px', fontWeight: 700, cursor: 'pointer' }}>Remove</button>
+                    <button onClick={() => handleMoveHeroSlide(idx, -1)} disabled={idx === 0} style={{ background: '#5eead4', color: '#181c20', border: 'none', borderRadius: 6, padding: '8px 12px', fontWeight: 700, cursor: idx === 0 ? 'not-allowed' : 'pointer', opacity: idx === 0 ? 0.5 : 1 }}>↑</button>
+                    <button onClick={() => handleMoveHeroSlide(idx, 1)} disabled={idx === heroSlides.length - 1} style={{ background: '#5eead4', color: '#181c20', border: 'none', borderRadius: 6, padding: '8px 12px', fontWeight: 700, cursor: idx === heroSlides.length - 1 ? 'not-allowed' : 'pointer', opacity: idx === heroSlides.length - 1 ? 0.5 : 1 }}>↓</button>
+                  </div>
+                  <textarea value={slide.text} onChange={e => handleHeroSlideChange(idx, 'text', e.target.value)} rows={2} placeholder="Hero text (supports HTML)" style={{ width: '100%', fontSize: 15, borderRadius: 6, border: '1px solid #5eead4', padding: 8, background: '#23272b', color: '#fff', marginBottom: 8 }} />
+                  <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 600, color: '#5eead4', marginBottom: 4 }}>Preview:</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                        {slide.image && <img src={slide.image} alt={slide.alt} style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8, border: '1px solid #5eead4' }} />}
+                        <div dangerouslySetInnerHTML={{ __html: slide.text || '' }} style={{ color: '#fff', fontSize: 16 }} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <button onClick={handleAddHeroSlide} style={{ background: '#5eead4', color: '#181c20', border: 'none', borderRadius: 8, padding: '8px 18px', fontWeight: 700, cursor: 'pointer', marginBottom: 16 }}>Add Slide</button>
+              <button onClick={handleHeroSlidesSave} disabled={heroSlidesLoading} style={{ background: '#5eead4', color: '#181c20', border: 'none', borderRadius: 8, padding: '8px 18px', fontWeight: 700, cursor: 'pointer', marginLeft: 12 }}>Save</button>
+              {heroSlidesLoading && <span style={{ color: '#5eead4', marginLeft: 10 }}>Saving...</span>}
+              {heroSlidesSuccess && <span style={{ color: '#5eead4', marginLeft: 10 }}>{heroSlidesSuccess}</span>}
+              {heroSlidesError && <span style={{ color: '#ff4d4f', marginLeft: 10 }}>{heroSlidesError}</span>}
             </div>
           </>
         )}
