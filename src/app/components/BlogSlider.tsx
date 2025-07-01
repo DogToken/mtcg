@@ -67,7 +67,17 @@ export default function BlogSlider({ posts }: { posts: BlogPost[] }) {
             <div style={{ fontWeight: 700, fontSize: 20, marginBottom: 8 }}>{post.title}</div>
             <div style={{ color: '#5eead4', fontSize: 14, fontWeight: 500, marginBottom: 8 }}>{post.date ? new Date(post.date).toLocaleDateString() : ''}</div>
             <div style={{ color: '#b3b8c2', fontSize: 16, marginBottom: 8 }}>{post.excerpt || (post.content ? post.content.slice(0, 100) + (post.content.length > 100 ? '...' : '') : '')}</div>
-            <div style={{ color: '#fff', fontWeight: 600, fontSize: 15 }}>{post.author?.name || 'User'}</div>
+            {post.author?.name ? (
+              <a
+                href={`/profile/${encodeURIComponent(post.author.name)}`}
+                style={{ color: '#5eead4', fontWeight: 600, fontSize: 15, textDecoration: 'underline', cursor: 'pointer' }}
+                onClick={e => { e.stopPropagation(); }}
+              >
+                {post.author.name}
+              </a>
+            ) : (
+              <div style={{ color: '#fff', fontWeight: 600, fontSize: 15 }}>User</div>
+            )}
           </div>
         ))}
       </div>

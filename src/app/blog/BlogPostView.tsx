@@ -27,7 +27,16 @@ export default function BlogPostView({ blogPost }: { blogPost: BlogPost }) {
       <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 18 }}>
         <UserImage src={blogPost.author?.image} alt={blogPost.author?.name || "User"} size={56} />
         <div>
-          <div style={{ color: '#fff', fontWeight: 600, fontSize: 17 }}>{blogPost.author?.name || "User"}</div>
+          {blogPost.author?.name ? (
+            <a
+              href={`/profile/${encodeURIComponent(blogPost.author.name)}`}
+              style={{ color: '#5eead4', fontWeight: 600, fontSize: 17, textDecoration: 'underline', cursor: 'pointer' }}
+            >
+              {blogPost.author.name}
+            </a>
+          ) : (
+            <div style={{ color: '#fff', fontWeight: 600, fontSize: 17 }}>User</div>
+          )}
           <div style={{ color: '#5eead4', fontSize: 14 }}>{blogPost.date ? new Date(blogPost.date).toLocaleDateString() : ""}</div>
         </div>
       </div>

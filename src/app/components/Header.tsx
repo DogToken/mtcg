@@ -120,11 +120,10 @@ export default function Header() {
                   gap: 0,
                 }}>
                   <Link href="/dashboard" style={{ padding: '12px 18px', color: '#fff', textDecoration: 'none', fontWeight: 500, borderRadius: 8, transition: 'background 0.2s' }}>Dashboard</Link>
-                  <Link href="/profile" style={{ padding: '12px 18px', color: '#fff', textDecoration: 'none', fontWeight: 500, borderRadius: 8, transition: 'background 0.2s' }}>Profile</Link>
+                  <Link href="/settings" style={{ padding: '12px 18px', color: '#fff', textDecoration: 'none', fontWeight: 500, borderRadius: 8, transition: 'background 0.2s' }}>Profile</Link>
                   {session.user?.email === "doggo@dogswap.xyz" && (
                     <Link href="/dashboard/admin" style={{ padding: '12px 18px', color: '#fff', textDecoration: 'none', fontWeight: 500, borderRadius: 8, transition: 'background 0.2s' }}>Admin</Link>
                   )}
-                  <Link href="/settings" style={{ padding: '12px 18px', color: '#fff', textDecoration: 'none', fontWeight: 500, borderRadius: 8, transition: 'background 0.2s' }}>Settings</Link>
                   <button
                     onClick={() => signOut({ callbackUrl: "/login" })}
                     style={{
