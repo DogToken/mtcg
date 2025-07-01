@@ -82,7 +82,14 @@ export default function RootLayout({
         favicon.setAttribute('rel', 'icon');
         document.head.appendChild(favicon);
       }
-      favicon.setAttribute('href', siteInfo.favicon || '/favicon.ico');
+      const testImg = new window.Image();
+      testImg.onload = () => {
+        favicon!.setAttribute('href', siteInfo.favicon || '/favicon.ico');
+      };
+      testImg.onerror = () => {
+        favicon!.setAttribute('href', '/favicon.ico');
+      };
+      testImg.src = siteInfo.favicon || '/favicon.ico';
     }
   }, [siteInfo.favicon]);
 

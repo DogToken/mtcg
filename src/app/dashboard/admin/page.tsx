@@ -311,11 +311,13 @@ export default function AdminDashboard() {
   return (
     <>
       <Header editableHeader />
-      <main style={{ width: '100%', maxWidth: 900, margin: '0 auto', padding: '0 32px' }}>
-        <h2 style={{ fontSize: 32, fontWeight: 700, marginBottom: 32 }}>Admin Dashboard</h2>
-        <div style={{ display: 'flex', gap: 18, marginBottom: 32 }}>
-          <button onClick={() => setSelectedTab('Users')} style={{ color: selectedTab === 'Users' ? '#fff' : '#5eead4', background: selectedTab === 'Users' ? 'rgba(94,234,212,0.08)' : 'none', fontWeight: 700, fontSize: 18, border: 'none', borderRadius: 8, padding: '10px 24px', cursor: 'pointer', transition: 'background 0.2s, color 0.2s' }}>Users</button>
-          <button onClick={() => setSelectedTab('Settings')} style={{ color: selectedTab === 'Settings' ? '#fff' : '#5eead4', background: selectedTab === 'Settings' ? 'rgba(94,234,212,0.08)' : 'none', fontWeight: 700, fontSize: 18, border: 'none', borderRadius: 8, padding: '10px 24px', cursor: 'pointer', transition: 'background 0.2s, color 0.2s' }}>Settings</button>
+      <main className="flex-1 w-full max-w-4xl mx-auto px-2 sm:px-4 py-4">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 18, marginBottom: 32, paddingTop: 32 }}>
+          <h2 style={{ fontSize: 36, fontWeight: 800, color: '#5eead4', margin: 0, letterSpacing: '-0.03em', flex: 1 }}>Admin Dashboard</h2>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <button onClick={() => setSelectedTab('Users')} style={{ color: selectedTab === 'Users' ? '#fff' : '#5eead4', background: selectedTab === 'Users' ? 'rgba(94,234,212,0.18)' : 'none', fontWeight: 700, fontSize: 18, border: 'none', borderRadius: 8, padding: '10px 24px', cursor: 'pointer', transition: 'background 0.2s, color 0.2s' }}>Users</button>
+            <button onClick={() => setSelectedTab('Settings')} style={{ color: selectedTab === 'Settings' ? '#fff' : '#5eead4', background: selectedTab === 'Settings' ? 'rgba(94,234,212,0.18)' : 'none', fontWeight: 700, fontSize: 18, border: 'none', borderRadius: 8, padding: '10px 24px', cursor: 'pointer', transition: 'background 0.2s, color 0.2s' }}>Settings</button>
+          </div>
         </div>
         {selectedTab === 'Users' && (
           <>
@@ -323,7 +325,7 @@ export default function AdminDashboard() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
               {users.map((user) => (
                 <div key={user._id} style={{
-                  background: 'rgba(34, 38, 44, 0.95)',
+                  background: '#23272b',
                   borderRadius: 16,
                   padding: 20,
                   boxShadow: '0 2px 16px 0 rgba(0,255,255,0.06)',
@@ -352,7 +354,7 @@ export default function AdminDashboard() {
         )}
         {selectedTab === 'Settings' && (
           <>
-            <section style={{ background: 'rgba(34, 38, 44, 0.95)', borderRadius: 16, padding: 32, boxShadow: '0 2px 16px 0 rgba(0,255,255,0.06)', maxWidth: 600, margin: '0 auto' }}>
+            <section style={{ background: '#23272b', borderRadius: 16, padding: 32, boxShadow: '0 2px 16px 0 rgba(0,255,255,0.06)', maxWidth: 600, margin: '0 auto' }}>
               <h3 style={{ fontSize: 24, fontWeight: 700, marginBottom: 18 }}>Footer Settings</h3>
               {footerLoading && <div style={{ color: '#5eead4', marginBottom: 12 }}>Loading...</div>}
               {footerError && <div style={{ color: '#ff4d4f', marginBottom: 12 }}>{footerError}</div>}
@@ -385,7 +387,7 @@ export default function AdminDashboard() {
                 </form>
               )}
             </section>
-            <div style={{ marginTop: 40, background: 'rgba(34, 38, 44, 0.95)', borderRadius: 16, padding: 24, boxShadow: '0 2px 16px 0 rgba(0,255,255,0.06)' }}>
+            <div style={{ marginTop: 40, background: '#23272b', borderRadius: 16, padding: 24, boxShadow: '0 2px 16px 0 rgba(0,255,255,0.06)' }}>
               <div style={{ fontWeight: 700, fontSize: 22, color: '#fff', marginBottom: 10 }}>Ecosystem Welcome Section</div>
               <textarea
                 value={ecoWelcome}
@@ -399,7 +401,7 @@ export default function AdminDashboard() {
               {ecoWelcomeSuccess && <span style={{ color: '#5eead4', marginLeft: 10 }}>{ecoWelcomeSuccess}</span>}
               {ecoWelcomeError && <span style={{ color: '#ff4d4f', marginLeft: 10 }}>{ecoWelcomeError}</span>}
             </div>
-            <div style={{ marginTop: 32, background: 'rgba(34, 38, 44, 0.95)', borderRadius: 16, padding: 24, boxShadow: '0 2px 16px 0 rgba(0,255,255,0.06)' }}>
+            <div style={{ marginTop: 32, background: '#23272b', borderRadius: 16, padding: 24, boxShadow: '0 2px 16px 0 rgba(0,255,255,0.06)' }}>
               <div style={{ fontWeight: 700, fontSize: 22, color: '#fff', marginBottom: 10 }}>Ecosystem Engagement Section</div>
               <textarea
                 value={ecoEngagement}
@@ -413,7 +415,7 @@ export default function AdminDashboard() {
               {ecoEngagementSuccess && <span style={{ color: '#5eead4', marginLeft: 10 }}>{ecoEngagementSuccess}</span>}
               {ecoEngagementError && <span style={{ color: '#ff4d4f', marginLeft: 10 }}>{ecoEngagementError}</span>}
             </div>
-            <div style={{ marginTop: 32, background: 'rgba(34, 38, 44, 0.95)', borderRadius: 16, padding: 24, boxShadow: '0 2px 16px 0 rgba(0,255,255,0.06)' }}>
+            <div style={{ marginTop: 32, background: '#23272b', borderRadius: 16, padding: 24, boxShadow: '0 2px 16px 0 rgba(0,255,255,0.06)' }}>
               <div style={{ fontWeight: 700, fontSize: 22, color: '#fff', marginBottom: 10 }}>Ecosystem Resource Hub Section</div>
               <textarea
                 value={ecoResources}
@@ -427,7 +429,7 @@ export default function AdminDashboard() {
               {ecoResourcesSuccess && <span style={{ color: '#5eead4', marginLeft: 10 }}>{ecoResourcesSuccess}</span>}
               {ecoResourcesError && <span style={{ color: '#ff4d4f', marginLeft: 10 }}>{ecoResourcesError}</span>}
             </div>
-            <div style={{ marginTop: 40, background: 'rgba(34, 38, 44, 0.95)', borderRadius: 16, padding: 24, boxShadow: '0 2px 16px 0 rgba(0,255,255,0.06)' }}>
+            <div style={{ marginTop: 40, background: '#23272b', borderRadius: 16, padding: 24, boxShadow: '0 2px 16px 0 rgba(0,255,255,0.06)' }}>
               <div style={{ fontWeight: 700, fontSize: 22, color: '#fff', marginBottom: 10 }}>Home Page Hero Slides</div>
               {heroSlides.map((slide, idx) => (
                 <div key={idx} style={{ marginBottom: 24, border: '1px solid #5eead4', borderRadius: 8, padding: 16, background: '#181c20' }}>
@@ -456,7 +458,7 @@ export default function AdminDashboard() {
               {heroSlidesSuccess && <span style={{ color: '#5eead4', marginLeft: 10 }}>{heroSlidesSuccess}</span>}
               {heroSlidesError && <span style={{ color: '#ff4d4f', marginLeft: 10 }}>{heroSlidesError}</span>}
             </div>
-            <div style={{ marginTop: 40, background: 'rgba(34, 38, 44, 0.95)', borderRadius: 16, padding: 24, boxShadow: '0 2px 16px 0 rgba(0,255,255,0.06)' }}>
+            <div style={{ marginTop: 40, background: '#23272b', borderRadius: 16, padding: 24, boxShadow: '0 2px 16px 0 rgba(0,255,255,0.06)' }}>
               <div style={{ fontWeight: 700, fontSize: 22, color: '#fff', marginBottom: 10 }}>Site Info</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                 <input type="text" value={siteInfo.name} onChange={e => handleSiteInfoChange('name', e.target.value)} placeholder="Site Name" style={{ fontSize: 15, borderRadius: 6, border: '1px solid #5eead4', padding: 8, background: '#23272b', color: '#fff' }} />
@@ -464,17 +466,8 @@ export default function AdminDashboard() {
                 <input type="text" value={siteInfo.description} onChange={e => handleSiteInfoChange('description', e.target.value)} placeholder="Site Description (SEO)" style={{ fontSize: 15, borderRadius: 6, border: '1px solid #5eead4', padding: 8, background: '#23272b', color: '#fff' }} />
                 <input type="text" value={siteInfo.header} onChange={e => handleSiteInfoChange('header', e.target.value)} placeholder="Header Text" style={{ fontSize: 15, borderRadius: 6, border: '1px solid #5eead4', padding: 8, background: '#23272b', color: '#fff' }} />
                 <input type="text" value={siteInfo.logo} onChange={e => handleSiteInfoChange('logo', e.target.value)} placeholder="Logo URL (e.g. /profile.png)" style={{ fontSize: 15, borderRadius: 6, border: '1px solid #5eead4', padding: 8, background: '#23272b', color: '#fff' }} />
-                <label style={{ fontWeight: 600, fontSize: 15 }}>Favicon</label>
-                <input type="file" accept="image/x-icon,image/png" onChange={async e => {
-                  const file = e.target.files?.[0];
-                  if (!file) return;
-                  const formData = new FormData();
-                  formData.append('file', file);
-                  const res = await fetch('/api/admin/upload-favicon', { method: 'POST', body: formData });
-                  const data = await res.json();
-                  if (data.path) handleSiteInfoChange('favicon', data.path);
-                }} style={{ fontSize: 15, borderRadius: 6, border: '1px solid #5eead4', padding: 8, background: '#23272b', color: '#fff' }} />
-                {siteInfo.favicon && <img src={siteInfo.favicon} alt="Favicon preview" style={{ width: 32, height: 32, borderRadius: 4, border: '1px solid #5eead4', background: '#fff', marginTop: 8 }} />}
+                <input type="text" value={siteInfo.favicon || ''} onChange={e => handleSiteInfoChange('favicon', e.target.value)} placeholder="Favicon URL (e.g. /favicon.ico or https://...)" style={{ fontSize: 15, borderRadius: 6, border: '1px solid #5eead4', padding: 8, background: '#23272b', color: '#fff' }} />
+                {siteInfo.favicon && <img src={siteInfo.favicon} alt="Favicon preview" style={{ width: 32, height: 32, borderRadius: 4, border: '1px solid #5eead4', background: '#fff', marginTop: 8 }} onError={e => { (e.target as HTMLImageElement).src = '/favicon.ico'; }} />}
               </div>
               <button onClick={handleSiteInfoSave} disabled={siteInfoLoading} style={{ background: '#5eead4', color: '#181c20', border: 'none', borderRadius: 8, padding: '8px 18px', fontWeight: 700, cursor: 'pointer', marginTop: 16 }}>Save</button>
               {siteInfoLoading && <span style={{ color: '#5eead4', marginLeft: 10 }}>Saving...</span>}
