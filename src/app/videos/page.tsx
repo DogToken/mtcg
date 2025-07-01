@@ -16,8 +16,11 @@ interface Video {
 }
 
 function getEmbedUrl(url: string) {
-  const match = url.match(/(?:youtu.be\/|youtube.com\/(?:watch\?v=|embed\/|v\/|shorts\/)?)([\w-]{11})/);
-  return match ? `https://www.youtube.com/embed/${match[1]}` : url;
+  // Robustly extract the video ID from various YouTube URL formats
+  const match = url.match(
+    /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/)?)([A-Za-z0-9_-]{11})/
+  );
+  return match ? `https://www.youtube.com/embed/${match[1]}` : null;
 }
 
 async function getAllVideos(): Promise<Video[]> {
@@ -65,16 +68,20 @@ export default async function VideosPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
               {videos.map(video => (
                 <div key={video._id} style={{ background: 'rgba(24,28,32,0.98)', borderRadius: 12, padding: 18, boxShadow: '0 2px 8px 0 rgba(0,255,255,0.04)' }}>
-                  <iframe
-                    width="100%"
-                    height="320"
-                    src={getEmbedUrl(video.url)}
-                    title={video.description}
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    style={{ borderRadius: 10, marginBottom: 12 }}
-                  />
+                  {getEmbedUrl(video.url) ? (
+                    <iframe
+                      width="100%"
+                      height="320"
+                      src={getEmbedUrl(video.url) as string}
+                      title={video.description}
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      style={{ borderRadius: 10, marginBottom: 12 }}
+                    />
+                  ) : (
+                    <div style={{ color: '#ff4d4f', marginBottom: 8 }}>Invalid YouTube URL</div>
+                  )}
                   <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 6 }}>{video.description}</div>
                   <div style={{ color: '#b3b8c2', fontSize: 15 }}>{video.date ? new Date(video.date).toLocaleDateString() : ''}</div>
                   <div style={{ color: '#fff', fontWeight: 500, fontSize: 15 }}>{video.author?.name || ''}</div>
