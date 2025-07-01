@@ -1,5 +1,7 @@
-import EcosystemClient from "../components/EcosystemClient";
+import dynamic from "next/dynamic";
 import { Metadata } from "next";
+
+const EcosystemClient = dynamic(() => import("../components/EcosystemClient"), { ssr: false });
 
 export default function EcosystemPage() {
   return <EcosystemClient />;

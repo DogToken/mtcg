@@ -1,5 +1,6 @@
 import { Metadata } from "next";
-import VideosClient from "./VideosClient";
+import dynamic from "next/dynamic";
+const VideosClient = dynamic(() => import("./VideosClient"), { ssr: false });
 
 export async function generateMetadata(): Promise<Metadata> {
   const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/admin/siteinfo`);

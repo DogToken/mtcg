@@ -1,5 +1,7 @@
-import HomeClient from "./components/HomeClient";
+import dynamic from "next/dynamic";
 import { Metadata } from "next";
+
+const HomeClient = dynamic(() => import("./components/HomeClient"), { ssr: false });
 
 export default function Home() {
   return <HomeClient />;
