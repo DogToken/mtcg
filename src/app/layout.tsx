@@ -78,10 +78,6 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground min-h-screen flex flex-col`}
       >
         <SessionProviderWrapper>
-          <header style={{ width: '100%', maxWidth: 900, margin: '0 auto', padding: '0 32px', display: 'flex', alignItems: 'center', gap: 16, minHeight: 64 }}>
-            {siteInfo.logo && <img src={siteInfo.logo} alt="Logo" style={{ width: 48, height: 48, borderRadius: 8, background: '#fff', border: '1px solid #5eead4' }} />}
-            <span style={{ fontWeight: 700, fontSize: 28, color: '#fff', letterSpacing: '-0.03em' }}>{siteInfo.header || siteInfo.name}</span>
-          </header>
           <main className="flex-1 w-full max-w-4xl mx-auto px-2 sm:px-4 py-4">
             {children}
           </main>
