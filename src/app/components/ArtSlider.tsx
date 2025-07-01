@@ -2,13 +2,13 @@
 import React, { useState, useRef } from 'react';
 
 interface ArtItem {
-  id: number;
-  title: string;
-  image: string;
+  _id: string;
+  url: string;
 }
 
 export default function ArtSlider({ art }: { art: ArtItem[] }) {
   const [active, setActive] = useState(0);
+  const [modalImg, setModalImg] = useState<string | null>(null);
   const sliderRef = useRef<HTMLDivElement>(null);
 
   const handleDotClick = (idx: number) => {
@@ -39,7 +39,7 @@ export default function ArtSlider({ art }: { art: ArtItem[] }) {
       >
         {art.map((item, idx) => (
           <div
-            key={item.id}
+            key={item._id}
             style={{
               minWidth: 320,
               maxWidth: 340,
@@ -53,15 +53,18 @@ export default function ArtSlider({ art }: { art: ArtItem[] }) {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
+              cursor: 'pointer',
             }}
+            onClick={() => setModalImg(item.url)}
           >
-            <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 8 }}>{item.title}</div>
             <img
-              src={item.image}
-              alt={item.title}
+              src={item.url}
+              alt="Art"
               width={280}
               height={180}
-              style={{ borderRadius: 10, marginBottom: 8, objectFit: 'cover', width: 280, height: 180 }}
+              style={{ borderRadius: 10, marginBottom: 8, objectFit: 'cover', width: 280, height: 180, background: '#23272b', border: '2px solid #5eead4', boxShadow: '0 0 8px #00ffff' }}
+              onError={e => (e.currentTarget.src = '/profile.png')}
+              loading="lazy"
             />
           </div>
         ))}
@@ -88,6 +91,38 @@ export default function ArtSlider({ art }: { art: ArtItem[] }) {
           />
         ))}
       </div>
+      {modalImg && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            background: 'rgba(0,0,0,0.85)',
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          onClick={() => setModalImg(null)}
+        >
+          <img
+            src={modalImg}
+            alt="Art Large"
+            style={{
+              maxWidth: '90vw',
+              maxHeight: '80vh',
+              borderRadius: 16,
+              border: '3px solid #5eead4',
+              boxShadow: '0 0 32px #00ffff',
+              background: '#23272b',
+            }}
+            onClick={e => e.stopPropagation()}
+            onError={e => (e.currentTarget.src = '/profile.png')}
+          />
+        </div>
+      )}
     </div>
   );
 } 

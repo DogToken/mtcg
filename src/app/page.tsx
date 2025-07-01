@@ -32,6 +32,11 @@ interface Video {
   };
 }
 
+interface Art {
+  _id: string;
+  url: string;
+}
+
 async function getLastBlogPosts(): Promise<BlogPost[]> {
   const client = await clientPromise;
   const db = client.db();
@@ -60,15 +65,20 @@ async function getLastVideos(): Promise<Video[]> {
   }));
 }
 
+async function getLastArt(): Promise<Art[]> {
+  const client = await clientPromise;
+  const db = client.db();
+  const art = await db.collection("art").find({}).sort({ _id: -1 }).limit(5).toArray();
+  return art.map((a: Document) => ({
+    _id: a._id.toString(),
+    url: a.url,
+  }));
+}
+
 export default async function Home() {
   const blogPosts = await getLastBlogPosts();
   const videos = await getLastVideos();
-  // Placeholder data for art
-  const art = [
-    { id: 1, title: "Neon City", image: "/art1.jpg" },
-    { id: 2, title: "Community Spirit", image: "/art2.jpg" },
-    { id: 3, title: "Digital Dreams", image: "/art3.jpg" },
-  ];
+  const art = await getLastArt();
   return (
     <div style={{
       minHeight: '100vh',

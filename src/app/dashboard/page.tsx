@@ -32,6 +32,18 @@ interface Video {
   };
 }
 
+// Add Art type
+interface Art {
+  _id: string;
+  url: string;
+  date?: string;
+  author?: {
+    name?: string;
+    email?: string;
+    image?: string;
+  };
+}
+
 export default function DashboardPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -52,6 +64,12 @@ export default function DashboardPage() {
   const [videoError, setVideoError] = useState("");
   const [videoSuccess, setVideoSuccess] = useState("");
   const [loadingVideos, setLoadingVideos] = useState(false);
+  const [selectedArtTab, setSelectedArtTab] = useState<'Post' | 'MyArt'>('Post');
+  const [myArt, setMyArt] = useState<Art[]>([]);
+  const [artUrl, setArtUrl] = useState("");
+  const [artError, setArtError] = useState("");
+  const [artSuccess, setArtSuccess] = useState("");
+  const [loadingArt, setLoadingArt] = useState(false);
   const profileImgSrc = session?.user?.image || "/profile.png";
 
   React.useEffect(() => {
@@ -76,6 +94,14 @@ export default function DashboardPage() {
     setLoadingVideos(false);
   };
 
+  const fetchMyArt = async () => {
+    setLoadingArt(true);
+    const res = await fetch(`/api/art`);
+    const data = await res.json();
+    setMyArt((data.art || []).filter((a: Art) => a.author?.email === session?.user?.email));
+    setLoadingArt(false);
+  };
+
   React.useEffect(() => {
     if (selectedSection === 'Blog' && selectedBlogTab === 'MyPosts' && session?.user?.email) {
       fetchMyPosts();
@@ -83,8 +109,11 @@ export default function DashboardPage() {
     if (selectedSection === 'Videos' && selectedVideoTab === 'MyVideos' && session?.user?.email) {
       fetchMyVideos();
     }
+    if (selectedSection === 'Art' && selectedArtTab === 'MyArt' && session?.user?.email) {
+      fetchMyArt();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedSection, selectedBlogTab, selectedVideoTab, session?.user?.email]);
+  }, [selectedSection, selectedBlogTab, selectedVideoTab, selectedArtTab, session?.user?.email]);
 
   const handlePost = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -130,6 +159,28 @@ export default function DashboardPage() {
     }
   };
 
+  const handlePostArt = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setArtError("");
+    setArtSuccess("");
+    if (!artUrl) {
+      setArtError("Image URL is required.");
+      return;
+    }
+    const res = await fetch("/api/art", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url: artUrl }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      setArtError(data.error || "Failed to post art.");
+    } else {
+      setArtSuccess("Art posted!");
+      setArtUrl("");
+    }
+  };
+
   const handleDeletePost = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this post?')) return;
     await fetch(`/api/blogpost?id=${id}`, { method: 'DELETE' });
@@ -140,6 +191,12 @@ export default function DashboardPage() {
     if (!window.confirm('Are you sure you want to delete this video?')) return;
     await fetch(`/api/videos?id=${id}`, { method: 'DELETE' });
     setMyVideos(myVideos.filter(v => v._id !== id));
+  };
+
+  const handleDeleteArt = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this art?')) return;
+    await fetch(`/api/art`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+    setMyArt(myArt.filter(a => a._id !== id));
   };
 
   if (status === "loading") {
@@ -447,8 +504,100 @@ export default function DashboardPage() {
               marginLeft: 'auto',
               marginRight: 'auto',
             }}>
-              <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 18 }}>Post Art</h2>
-              <div style={{ color: '#b3b8c2', fontSize: 16 }}>Art upload form coming soon...</div>
+              <div style={{ display: 'flex', gap: 24, marginBottom: 18 }}>
+                <button
+                  onClick={() => setSelectedArtTab('Post')}
+                  style={{
+                    color: selectedArtTab === 'Post' ? '#fff' : '#5eead4',
+                    background: selectedArtTab === 'Post' ? 'rgba(94,234,212,0.08)' : 'none',
+                    fontWeight: 600,
+                    fontSize: 18,
+                    border: 'none',
+                    borderRadius: 8,
+                    padding: '8px 24px',
+                    cursor: 'pointer',
+                    transition: 'background 0.2s, color 0.2s',
+                  }}
+                >
+                  Post Art
+                </button>
+                <button
+                  onClick={() => setSelectedArtTab('MyArt')}
+                  style={{
+                    color: selectedArtTab === 'MyArt' ? '#fff' : '#5eead4',
+                    background: selectedArtTab === 'MyArt' ? 'rgba(94,234,212,0.08)' : 'none',
+                    fontWeight: 600,
+                    fontSize: 18,
+                    border: 'none',
+                    borderRadius: 8,
+                    padding: '8px 24px',
+                    cursor: 'pointer',
+                    transition: 'background 0.2s, color 0.2s',
+                  }}
+                >
+                  My Art
+                </button>
+              </div>
+              {selectedArtTab === 'Post' && (
+                <>
+                  <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 18 }}>Post Art</h2>
+                  <form className="login-form" onSubmit={handlePostArt}>
+                    <input
+                      type="text"
+                      placeholder="Image URL (jpg, png, gif, webp)"
+                      className="login-input"
+                      value={artUrl}
+                      onChange={e => setArtUrl(e.target.value)}
+                      required
+                    />
+                    <button type="submit" className="login-btn">Post</button>
+                    {artError && <div style={{ color: '#ff4d4f', marginTop: 12, textAlign: 'center' }}>{artError}</div>}
+                    {artSuccess && <div style={{ color: '#5eead4', marginTop: 12, textAlign: 'center' }}>{artSuccess}</div>}
+                  </form>
+                </>
+              )}
+              {selectedArtTab === 'MyArt' && (
+                <div style={{ marginTop: 18 }}>
+                  {loadingArt ? (
+                    <div style={{ color: '#5eead4', textAlign: 'center' }}>Loading...</div>
+                  ) : myArt.length === 0 ? (
+                    <div style={{ color: '#b3b8c2', fontSize: 16, textAlign: 'center' }}>You have no art yet.</div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+                      {myArt.map(art => (
+                        <div key={art._id} style={{
+                          background: 'rgba(24,28,32,0.98)',
+                          borderRadius: 12,
+                          padding: 18,
+                          boxShadow: '0 2px 8px 0 rgba(0,255,255,0.04)',
+                          display: 'flex',
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          gap: 18,
+                        }}>
+                          <img
+                            src={art.url}
+                            alt="Art"
+                            style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8, border: '2px solid #5eead4', boxShadow: '0 0 8px #00ffff' }}
+                            onError={e => (e.currentTarget.src = '/profile.png')}
+                            loading="lazy"
+                          />
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontWeight: 700, fontSize: 18 }}>{art.url}</div>
+                            <div style={{ color: '#b3b8c2', fontSize: 15 }}>{art.date ? new Date(art.date).toLocaleDateString() : ''}</div>
+                          </div>
+                          <button
+                            onClick={() => handleDeleteArt(art._id)}
+                            style={{ background: '#ff4d4f', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 16px', fontWeight: 700, cursor: 'pointer' }}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </section>
           )}
         </main>
