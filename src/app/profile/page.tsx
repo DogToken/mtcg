@@ -75,7 +75,7 @@ export default function ProfilePage() {
               <h1 style={{ fontSize: 32, fontWeight: 700, marginBottom: 8 }}>{session.user.name}</h1>
               <div style={{ color: '#b3b8c2', fontSize: 18, marginBottom: 8 }}>{session.user.email}</div>
               <div style={{ color: '#5eead4', fontWeight: 600, fontSize: 16 }}>
-                {session.user.email === "doggo@dogswap.xyz" ? "Super Admin" : "Community Member"}
+                {session.user.email === "doggo@dogswap.xyz" ? "admin" : "Community Member"}
               </div>
             </div>
           </div>

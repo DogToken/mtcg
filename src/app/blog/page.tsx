@@ -3,7 +3,6 @@ import Header from "../components/Header";
 import clientPromise from "../../lib/mongodb";
 import { Document } from "mongodb";
 import BlogList from "../blog/BlogList";
-import { Metadata } from "next";
 
 // Add BlogPost type
 interface BlogPost {
@@ -57,23 +56,3 @@ export default async function BlogPage() {
     </div>
   );
 }
-
-export async function generateMetadata(): Promise<Metadata> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/admin/siteinfo`);
-  const data = await res.json();
-  return {
-    title: data.info?.title || "Blog | Community Group",
-    description: data.info?.description || "Community blog stories, updates, and more!",
-    openGraph: {
-      title: data.info?.title || "Blog | Community Group",
-      description: data.info?.description || "Community blog stories, updates, and more!",
-      images: [data.info?.logo || '/profile.png'],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: data.info?.title || "Blog | Community Group",
-      description: data.info?.description || "Community blog stories, updates, and more!",
-      images: [data.info?.logo || '/profile.png'],
-    },
-  };
-} 

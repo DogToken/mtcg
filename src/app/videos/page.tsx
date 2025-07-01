@@ -1,7 +1,6 @@
 'use client';
 import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
-import { Metadata } from "next";
 
 interface Video {
   _id: string;
@@ -163,23 +162,3 @@ export default function VideosPage() {
     </div>
   );
 }
-
-export async function generateMetadata(): Promise<Metadata> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/admin/siteinfo`);
-  const data = await res.json();
-  return {
-    title: data.info?.title || "Videos | Community Group",
-    description: data.info?.description || "Community video content and highlights!",
-    openGraph: {
-      title: data.info?.title || "Videos | Community Group",
-      description: data.info?.description || "Community video content and highlights!",
-      images: [data.info?.logo || '/profile.png'],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: data.info?.title || "Videos | Community Group",
-      description: data.info?.description || "Community video content and highlights!",
-      images: [data.info?.logo || '/profile.png'],
-    },
-  };
-} 

@@ -1,7 +1,6 @@
 'use client';
 import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
-import { Metadata } from "next";
 
 interface Art {
   _id: string;
@@ -123,23 +122,3 @@ export default function ArtPage() {
     </div>
   );
 }
-
-export async function generateMetadata(): Promise<Metadata> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/admin/siteinfo`);
-  const data = await res.json();
-  return {
-    title: data.info?.title || "Art | Community Group",
-    description: data.info?.description || "Community art gallery and showcase!",
-    openGraph: {
-      title: data.info?.title || "Art | Community Group",
-      description: data.info?.description || "Community art gallery and showcase!",
-      images: [data.info?.logo || '/profile.png'],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: data.info?.title || "Art | Community Group",
-      description: data.info?.description || "Community art gallery and showcase!",
-      images: [data.info?.logo || '/profile.png'],
-    },
-  };
-} 

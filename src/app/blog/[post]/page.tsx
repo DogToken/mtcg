@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import Header from "../../components/Header";
 import clientPromise from "../../../lib/mongodb";
 import BlogPostView from "../BlogPostView";
-import { Metadata } from "next";
 
 async function getPostByPost(post: string) {
   const client = await clientPromise;
@@ -34,28 +33,3 @@ export default async function BlogPostPage({ params }: { params: Promise<{ post:
     </div>
   );
 }
-
-export async function generateMetadata({ params }: { params: { post: string } }): Promise<Metadata> {
-  // Fetch post data and site info
-  const postRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/blogpost?slug=${params.post}`);
-  const postData = await postRes.json();
-  const siteRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/admin/siteinfo`);
-  const siteData = await siteRes.json();
-  const post = postData?.post || {};
-  const info = siteData?.info || {};
-  return {
-    title: post.title || info.title || "Blog Post | Community Group",
-    description: post.description || info.description || "Community blog post.",
-    openGraph: {
-      title: post.title || info.title || "Blog Post | Community Group",
-      description: post.description || info.description || "Community blog post.",
-      images: [post.image || info.logo || '/profile.png'],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: post.title || info.title || "Blog Post | Community Group",
-      description: post.description || info.description || "Community blog post.",
-      images: [post.image || info.logo || '/profile.png'],
-    },
-  };
-} 

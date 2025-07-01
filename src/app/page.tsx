@@ -4,7 +4,6 @@ import Header from "./components/Header";
 import BlogSlider from "./components/BlogSlider";
 import VideoSlider from "./components/VideoSlider";
 import ArtSlider from "./components/ArtSlider";
-import { Metadata } from "next";
 
 function HeroSlider() {
   const [slides, setSlides] = useState<{ image: string; alt: string; text: string }[]>([]);
@@ -160,24 +159,4 @@ export default function Home() {
       </main>
     </div>
   );
-}
-
-export async function generateMetadata(): Promise<Metadata> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/admin/siteinfo`);
-  const data = await res.json();
-  return {
-    title: data.info?.title || "Home | Community Group",
-    description: data.info?.description || "A modern, open community for sharing, learning, and connecting.",
-    openGraph: {
-      title: data.info?.title || "Home | Community Group",
-      description: data.info?.description || "A modern, open community for sharing, learning, and connecting.",
-      images: [data.info?.logo || '/profile.png'],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: data.info?.title || "Home | Community Group",
-      description: data.info?.description || "A modern, open community for sharing, learning, and connecting.",
-      images: [data.info?.logo || '/profile.png'],
-    },
-  };
 }
