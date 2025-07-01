@@ -13,6 +13,7 @@
     "autoprefixer": "latest",
     "bcryptjs": "latest",
     "ethers": "latest",
+    "formidable": "^3.5.4",
     "mongodb": "latest",
     "next": "latest",
     "next-auth": "latest",

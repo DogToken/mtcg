@@ -34,6 +34,7 @@ export default function RootLayout({
     description: "A modern, open community for sharing, learning, and connecting.",
     header: "Community Group",
     logo: "/profile.png",
+    favicon: "/favicon.ico",
   });
 
   useEffect(() => {
@@ -71,6 +72,19 @@ export default function RootLayout({
       twImage.setAttribute('content', siteInfo.logo || '/profile.png');
     }
   }, [siteInfo.title, siteInfo.description, siteInfo.logo]);
+
+  // Dynamically update favicon
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      let favicon = document.querySelector('link[rel="icon"]');
+      if (!favicon) {
+        favicon = document.createElement('link');
+        favicon.setAttribute('rel', 'icon');
+        document.head.appendChild(favicon);
+      }
+      favicon.setAttribute('href', siteInfo.favicon || '/favicon.ico');
+    }
+  }, [siteInfo.favicon]);
 
   return (
     <html lang="en" className="dark">

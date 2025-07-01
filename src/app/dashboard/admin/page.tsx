@@ -70,6 +70,7 @@ export default function AdminDashboard() {
     description: '',
     header: '',
     logo: '',
+    favicon: '',
   });
   const [siteInfoLoading, setSiteInfoLoading] = useState(false);
   const [siteInfoSuccess, setSiteInfoSuccess] = useState('');
@@ -282,7 +283,7 @@ export default function AdminDashboard() {
     setSiteInfoLoading(true);
     const res = await fetch('/api/admin/siteinfo');
     const data = await res.json();
-    setSiteInfo(data.info || { name: '', title: '', description: '', header: '', logo: '' });
+    setSiteInfo(data.info || { name: '', title: '', description: '', header: '', logo: '', favicon: '' });
     setSiteInfoLoading(false);
   };
 
@@ -463,10 +464,17 @@ export default function AdminDashboard() {
                 <input type="text" value={siteInfo.description} onChange={e => handleSiteInfoChange('description', e.target.value)} placeholder="Site Description (SEO)" style={{ fontSize: 15, borderRadius: 6, border: '1px solid #5eead4', padding: 8, background: '#23272b', color: '#fff' }} />
                 <input type="text" value={siteInfo.header} onChange={e => handleSiteInfoChange('header', e.target.value)} placeholder="Header Text" style={{ fontSize: 15, borderRadius: 6, border: '1px solid #5eead4', padding: 8, background: '#23272b', color: '#fff' }} />
                 <input type="text" value={siteInfo.logo} onChange={e => handleSiteInfoChange('logo', e.target.value)} placeholder="Logo URL (e.g. /profile.png)" style={{ fontSize: 15, borderRadius: 6, border: '1px solid #5eead4', padding: 8, background: '#23272b', color: '#fff' }} />
-                <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginTop: 8 }}>
-                  {siteInfo.logo && <img src={siteInfo.logo} alt="Logo preview" style={{ width: 48, height: 48, borderRadius: 8, border: '1px solid #5eead4', background: '#fff' }} />}
-                  <span style={{ color: '#fff', fontWeight: 600 }}>{siteInfo.header}</span>
-                </div>
+                <label style={{ fontWeight: 600, fontSize: 15 }}>Favicon</label>
+                <input type="file" accept="image/x-icon,image/png" onChange={async e => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  const formData = new FormData();
+                  formData.append('file', file);
+                  const res = await fetch('/api/admin/upload-favicon', { method: 'POST', body: formData });
+                  const data = await res.json();
+                  if (data.path) handleSiteInfoChange('favicon', data.path);
+                }} style={{ fontSize: 15, borderRadius: 6, border: '1px solid #5eead4', padding: 8, background: '#23272b', color: '#fff' }} />
+                {siteInfo.favicon && <img src={siteInfo.favicon} alt="Favicon preview" style={{ width: 32, height: 32, borderRadius: 4, border: '1px solid #5eead4', background: '#fff', marginTop: 8 }} />}
               </div>
               <button onClick={handleSiteInfoSave} disabled={siteInfoLoading} style={{ background: '#5eead4', color: '#181c20', border: 'none', borderRadius: 8, padding: '8px 18px', fontWeight: 700, cursor: 'pointer', marginTop: 16 }}>Save</button>
               {siteInfoLoading && <span style={{ color: '#5eead4', marginLeft: 10 }}>Saving...</span>}
