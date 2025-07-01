@@ -5,6 +5,20 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import UserImage from "../components/UserImage";
 
+// Add BlogPost type
+interface BlogPost {
+  _id: string;
+  title: string;
+  slug: string;
+  excerpt?: string;
+  content?: string;
+  date?: string;
+  author?: {
+    name?: string;
+    image?: string;
+  };
+}
+
 export default function DashboardPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -15,6 +29,9 @@ export default function DashboardPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [selectedSection, setSelectedSection] = useState("Blog");
+  const [selectedBlogTab, setSelectedBlogTab] = useState<'Post' | 'MyPosts'>('Post');
+  const [myPosts, setMyPosts] = useState<BlogPost[]>([]);
+  const [loadingPosts, setLoadingPosts] = useState(false);
   const profileImgSrc = session?.user?.image || "/profile.png";
 
   React.useEffect(() => {
@@ -23,9 +40,20 @@ export default function DashboardPage() {
     }
   }, [status, router]);
 
-  if (status === "loading") {
-    return <div style={{ color: '#5eead4', textAlign: 'center', marginTop: 80 }}>Loading...</div>;
-  }
+  const fetchMyPosts = async () => {
+    setLoadingPosts(true);
+    const res = await fetch(`/api/blogpost?authorEmail=${session?.user?.email}`);
+    const data = await res.json();
+    setMyPosts(data.posts || []);
+    setLoadingPosts(false);
+  };
+
+  React.useEffect(() => {
+    if (selectedSection === 'Blog' && selectedBlogTab === 'MyPosts' && session?.user?.email) {
+      fetchMyPosts();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedSection, selectedBlogTab, session?.user?.email]);
 
   const handlePost = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,6 +76,16 @@ export default function DashboardPage() {
       setTitle(""); setTags(""); setSlug(""); setBody("");
     }
   };
+
+  const handleDeletePost = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this post?')) return;
+    await fetch(`/api/blogpost?id=${id}`, { method: 'DELETE' });
+    setMyPosts(myPosts.filter(p => p._id !== id));
+  };
+
+  if (status === "loading") {
+    return <div style={{ color: '#5eead4', textAlign: 'center', marginTop: 80 }}>Loading...</div>;
+  }
 
   return (
     <div style={{
@@ -115,43 +153,117 @@ export default function DashboardPage() {
               marginLeft: 'auto',
               marginRight: 'auto',
             }}>
-              <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 18 }}>Post a Blog</h2>
-              <form className="login-form" onSubmit={handlePost}>
-                <input
-                  type="text"
-                  placeholder="Title"
-                  className="login-input"
-                  value={title}
-                  onChange={e => setTitle(e.target.value)}
-                  required
-                />
-                <input
-                  type="text"
-                  placeholder="Tags (comma separated)"
-                  className="login-input"
-                  value={tags}
-                  onChange={e => setTags(e.target.value)}
-                />
-                <input
-                  type="text"
-                  placeholder="Slug (unique, e.g. my-first-post)"
-                  className="login-input"
-                  value={slug}
-                  onChange={e => setSlug(e.target.value)}
-                  required
-                />
-                <textarea
-                  placeholder="Body"
-                  className="login-input"
-                  style={{ minHeight: 120, resize: 'vertical' }}
-                  value={body}
-                  onChange={e => setBody(e.target.value)}
-                  required
-                />
-                <button type="submit" className="login-btn">Post</button>
-                {error && <div style={{ color: '#ff4d4f', marginTop: 12, textAlign: 'center' }}>{error}</div>}
-                {success && <div style={{ color: '#5eead4', marginTop: 12, textAlign: 'center' }}>{success}</div>}
-              </form>
+              <div style={{ display: 'flex', gap: 24, marginBottom: 18 }}>
+                <button
+                  onClick={() => setSelectedBlogTab('Post')}
+                  style={{
+                    color: selectedBlogTab === 'Post' ? '#fff' : '#5eead4',
+                    background: selectedBlogTab === 'Post' ? 'rgba(94,234,212,0.08)' : 'none',
+                    fontWeight: 600,
+                    fontSize: 18,
+                    border: 'none',
+                    borderRadius: 8,
+                    padding: '8px 24px',
+                    cursor: 'pointer',
+                    transition: 'background 0.2s, color 0.2s',
+                  }}
+                >
+                  Post a Blog
+                </button>
+                <button
+                  onClick={() => setSelectedBlogTab('MyPosts')}
+                  style={{
+                    color: selectedBlogTab === 'MyPosts' ? '#fff' : '#5eead4',
+                    background: selectedBlogTab === 'MyPosts' ? 'rgba(94,234,212,0.08)' : 'none',
+                    fontWeight: 600,
+                    fontSize: 18,
+                    border: 'none',
+                    borderRadius: 8,
+                    padding: '8px 24px',
+                    cursor: 'pointer',
+                    transition: 'background 0.2s, color 0.2s',
+                  }}
+                >
+                  My Posts
+                </button>
+              </div>
+              {selectedBlogTab === 'Post' && (
+                <>
+                  <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 18 }}>Post a Blog</h2>
+                  <form className="login-form" onSubmit={handlePost}>
+                    <input
+                      type="text"
+                      placeholder="Title"
+                      className="login-input"
+                      value={title}
+                      onChange={e => setTitle(e.target.value)}
+                      required
+                    />
+                    <input
+                      type="text"
+                      placeholder="Tags (comma separated)"
+                      className="login-input"
+                      value={tags}
+                      onChange={e => setTags(e.target.value)}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Slug (unique, e.g. my-first-post)"
+                      className="login-input"
+                      value={slug}
+                      onChange={e => setSlug(e.target.value)}
+                      required
+                    />
+                    <textarea
+                      placeholder="Body"
+                      className="login-input"
+                      style={{ minHeight: 120, resize: 'vertical' }}
+                      value={body}
+                      onChange={e => setBody(e.target.value)}
+                      required
+                    />
+                    <button type="submit" className="login-btn">Post</button>
+                  </form>
+                  {error && <div style={{ color: '#ff4d4f', marginTop: 12, textAlign: 'center' }}>{error}</div>}
+                  {success && <div style={{ color: '#5eead4', marginTop: 12, textAlign: 'center' }}>{success}</div>}
+                </>
+              )}
+              {selectedBlogTab === 'MyPosts' && (
+                <div style={{ marginTop: 18 }}>
+                  {loadingPosts ? (
+                    <div style={{ color: '#5eead4', textAlign: 'center' }}>Loading...</div>
+                  ) : myPosts.length === 0 ? (
+                    <div style={{ color: '#b3b8c2', fontSize: 16, textAlign: 'center' }}>You have no posts yet.</div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+                      {myPosts.map(post => (
+                        <div key={post._id} style={{
+                          background: 'rgba(24,28,32,0.98)',
+                          borderRadius: 12,
+                          padding: 18,
+                          boxShadow: '0 2px 8px 0 rgba(0,255,255,0.04)',
+                          display: 'flex',
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          gap: 18,
+                        }}>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontWeight: 700, fontSize: 18 }}>{post.title}</div>
+                            <div style={{ color: '#b3b8c2', fontSize: 15 }}>{post.date ? new Date(post.date).toLocaleDateString() : ''}</div>
+                            <div style={{ color: '#b3b8c2', fontSize: 15, marginTop: 6 }}>{post.excerpt || (post.content ? post.content.slice(0, 100) + (post.content.length > 100 ? '...' : '') : '')}</div>
+                          </div>
+                          <button
+                            onClick={() => handleDeletePost(post._id)}
+                            style={{ background: '#ff4d4f', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 16px', fontWeight: 700, cursor: 'pointer' }}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </section>
           )}
           {selectedSection === 'Videos' && (

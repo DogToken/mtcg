@@ -13,6 +13,7 @@ export default function UserImage({ src, alt = "User", size = 48, style }: UserI
     setImgSrc(src || "/profile.png");
   }, [src]);
   return (
+    // eslint-disable-next-line @next/next/no-img-element
     <img
       src={imgSrc}
       alt={alt}

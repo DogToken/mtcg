@@ -32,4 +32,26 @@ export async function POST(req: Request) {
   };
   await db.collection("posts").insertOne(post);
   return NextResponse.json({ success: true });
+}
+
+export async function GET(req: Request) {
+  const url = new URL(req.url);
+  const authorEmail = url.searchParams.get('authorEmail');
+  if (!authorEmail) {
+    return NextResponse.json({ posts: [] });
+  }
+  const client = await clientPromise;
+  const db = client.db();
+  const posts = await db.collection("posts").find({ "author.email": authorEmail }).sort({ date: -1 }).toArray();
+  return NextResponse.json({ posts });
+}
+
+export async function DELETE(req: Request) {
+  const url = new URL(req.url);
+  const id = url.searchParams.get('id');
+  if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 });
+  const client = await clientPromise;
+  const db = client.db();
+  await db.collection("posts").deleteOne({ _id: new (await import('mongodb')).ObjectId(id) });
+  return NextResponse.json({ success: true });
 } 
