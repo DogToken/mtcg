@@ -87,7 +87,7 @@ function ResetPasswordContent() {
             <h2 style={{ fontSize: 28, fontWeight: 700, marginBottom: 24, textAlign: 'center' }}>Reset Password</h2>
             {error && <div style={{ color: '#ff4d4f', marginTop: 12, textAlign: 'center' }}>{error}</div>}
             <div style={{ textAlign: 'center', marginTop: 18 }}>
-              <a href="/forgot-password" className="neon-link">Request New Reset Link</a>
+              <p style={{ color: '#b3b8c2', fontSize: 14 }}>Please contact an administrator for a new reset link.</p>
             </div>
           </section>
         </main>
