@@ -1,8 +1,21 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Environment Variables
+
+Create a `.env.local` file in the root directory with the following variables:
+
+```bash
+# Database Configuration
+MONGODB_URI=mongodb+srv://your-username:your-password@your-cluster.mongodb.net/
+
+# NextAuth Configuration
+NEXTAUTH_SECRET=your-nextauth-secret-key-here
+NEXTAUTH_URL=http://localhost:3000
+```
+
 ## Getting Started
 
-First, run the development server:
+First, create your `.env.local` file with the required environment variables, then run the development server:
 
 ```bash
 npm run dev

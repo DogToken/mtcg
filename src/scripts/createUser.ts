@@ -1,7 +1,7 @@
 import { MongoClient } from "mongodb";
 import bcrypt from "bcryptjs";
 
-const uri = "mongodb+srv://doggo:JMRbdOEFzEPumWbL@doggo.eebijgu.mongodb.net/";
+const uri = process.env.MONGODB_URI || "mongodb+srv://doggo:JMRbdOEFzEPumWbL@doggo.eebijgu.mongodb.net/";
 
 async function main() {
   const email = process.argv[2];

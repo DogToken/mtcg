@@ -1,7 +1,6 @@
 'use client';
 import React, { useState } from "react";
 import Header from "../components/Header";
-import { useRouter } from "next/navigation";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -9,7 +8,6 @@ export default function ForgotPasswordPage() {
   const [success, setSuccess] = useState("");
   const [resetLink, setResetLink] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +29,7 @@ export default function ForgotPasswordPage() {
         setSuccess(data.message || "Reset link generated successfully!");
         setResetLink(data.resetLink);
       }
-    } catch (err) {
+    } catch {
       setError("An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
@@ -63,7 +61,7 @@ export default function ForgotPasswordPage() {
         }}>
           <h2 style={{ fontSize: 28, fontWeight: 700, marginBottom: 24, textAlign: 'center' }}>Reset Password</h2>
           <p style={{ textAlign: 'center', marginBottom: 24, color: '#a0a0a0' }}>
-            Enter your email address and we'll send you a link to reset your password.
+            Enter your email address and we&apos;ll send you a link to reset your password.
           </p>
           <form className="login-form" onSubmit={handleSubmit}>
             <input

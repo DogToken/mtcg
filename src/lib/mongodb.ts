@@ -1,6 +1,6 @@
 import { MongoClient } from "mongodb";
 
-const uri = "mongodb+srv://doggo:JMRbdOEFzEPumWbL@doggo.eebijgu.mongodb.net/";
+const uri = process.env.MONGODB_URI || "mongodb+srv://doggo:JMRbdOEFzEPumWbL@doggo.eebijgu.mongodb.net/";
 const options = {};
 
 let client;
