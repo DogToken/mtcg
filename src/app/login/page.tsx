@@ -77,6 +77,9 @@ export default function LoginPage() {
           <div style={{ textAlign: 'center', marginTop: 18 }}>
             <a href="/register" className="neon-link">Don&apos;t have an account? Register</a>
           </div>
+          <div style={{ textAlign: 'center', marginTop: 12 }}>
+            <a href="/forgot-password" className="neon-link">Forgot your password?</a>
+          </div>
         </section>
       </main>
     </div>
