@@ -30,7 +30,7 @@ export default function AdminPasswordResetPage() {
         setSuccess("Reset link generated successfully!");
         setResetLink(data.resetLink);
       }
-    } catch (err) {
+    } catch {
       setError("An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
