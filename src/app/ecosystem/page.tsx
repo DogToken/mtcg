@@ -53,11 +53,11 @@ export default function EcosystemPage() {
       tradeUrl: 'https://www.mintme.com/token/SatoriD/trade',
     },
     {
-      name: 'bobdubbloon',
+      name: 'bobdub',
       description: 'Podcasts, Recording, Editing, Creator',
       token: 'bobdubbloon',
       image: '/bobdubbloon.jpeg',
-      profileUrl: '/profile/bobdubbloon',
+      profileUrl: '/profile/bobdub',
       readUrl: 'https://www.mintme.com/token/bobdubbloon',
       tradeUrl: 'https://www.mintme.com/token/bobdubbloon/trade',
     },
