@@ -520,8 +520,6 @@ export default function AdminDashboard() {
             </div>
           </div>
         )}
-          </div>
-        )}
 
         {selectedTab === 'Site' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
