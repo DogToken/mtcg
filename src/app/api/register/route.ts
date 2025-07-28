@@ -20,6 +20,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "User already exists" }, { status: 400 });
   }
   const hashedPassword = await bcrypt.hash(password, 10);
-  await users.insertOne({ email, name, hashedPassword, image });
+  await users.insertOne({ email, name, password: hashedPassword, image });
   return NextResponse.json({ success: true });
 } 

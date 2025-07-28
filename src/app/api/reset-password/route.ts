@@ -36,7 +36,7 @@ export async function POST(req: Request) {
       { _id: user._id },
       { 
         $set: { 
-          hashedPassword
+          password: hashedPassword
         },
         $unset: { 
           resetToken: "",

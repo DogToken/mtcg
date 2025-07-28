@@ -22,7 +22,7 @@ async function main() {
     console.error("User already exists");
     process.exit(1);
   }
-  await users.insertOne({ email, name, hashedPassword, image });
+  await users.insertOne({ email, name, password: hashedPassword, image });
   console.log("User created:", email);
   await client.close();
 }

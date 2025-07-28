@@ -38,8 +38,9 @@ export const authOptions = {
         const client = await clientPromise;
         const users = client.db().collection("users");
         const user = await users.findOne({ email: credentials?.email });
-        if (user && user.hashedPassword) {
-          const isValid = await compare(credentials!.password, user.hashedPassword);
+        
+        if (user && user.password) {
+          const isValid = await compare(credentials!.password, user.password);
           if (isValid) {
             return { id: user._id.toString(), email: user.email, name: user.name, image: user.image, role: user.role || 'user' };
           }
