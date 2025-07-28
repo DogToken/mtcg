@@ -76,25 +76,37 @@ export default function RootLayout({
   // Dynamically update favicon
   useEffect(() => {
     if (typeof document !== 'undefined') {
-      let favicon = document.querySelector('link[rel="icon"]');
-      if (!favicon) {
-        favicon = document.createElement('link');
-        favicon.setAttribute('rel', 'icon');
-        document.head.appendChild(favicon);
-      }
-      const testImg = new window.Image();
-      testImg.onload = () => {
-        favicon!.setAttribute('href', siteInfo.favicon || '/favicon.ico');
-      };
-      testImg.onerror = () => {
-        favicon!.setAttribute('href', '/favicon.ico');
-      };
-      testImg.src = siteInfo.favicon || '/favicon.ico';
+      // Remove all existing favicon links
+      const existingFavicons = document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"]');
+      existingFavicons.forEach(link => link.remove());
+      
+      // Create new favicon link
+      const favicon = document.createElement('link');
+      favicon.setAttribute('rel', 'icon');
+      favicon.setAttribute('type', 'image/x-icon');
+      
+      // Add cache-busting parameter to force refresh
+      const faviconUrl = siteInfo.favicon || '/favicon.ico';
+      const timestamp = Date.now();
+      favicon.setAttribute('href', `${faviconUrl}?v=${timestamp}`);
+      
+      document.head.appendChild(favicon);
+      
+      // Also add shortcut icon for older browsers
+      const shortcutIcon = document.createElement('link');
+      shortcutIcon.setAttribute('rel', 'shortcut icon');
+      shortcutIcon.setAttribute('type', 'image/x-icon');
+      shortcutIcon.setAttribute('href', `${faviconUrl}?v=${timestamp}`);
+      document.head.appendChild(shortcutIcon);
     }
   }, [siteInfo.favicon]);
 
   return (
     <html lang="en" className="dark">
+      <head>
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="shortcut icon" href="/favicon.ico" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground min-h-screen flex flex-col`}
       >

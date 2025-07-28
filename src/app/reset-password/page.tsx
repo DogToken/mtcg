@@ -1,9 +1,9 @@
 'use client';
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Header from "../components/Header";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
@@ -154,5 +154,46 @@ export default function ResetPasswordPage() {
         </section>
       </main>
     </div>
+  );
+}
+
+function LoadingFallback() {
+  return (
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(90deg, #181c20 0%, #23272b 100%)',
+      color: '#fff',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '40px 0',
+    }}>
+      <Header />
+      <main style={{ width: '100%', maxWidth: 900, padding: '0 32px' }}>
+        <section style={{
+          background: 'rgba(34, 38, 44, 0.95)',
+          borderRadius: 16,
+          padding: 32,
+          boxShadow: '0 2px 16px 0 rgba(0,0,0,0.12)',
+          marginBottom: 32,
+          maxWidth: 400,
+          marginLeft: 'auto',
+          marginRight: 'auto',
+          textAlign: 'center',
+        }}>
+          <h2 style={{ fontSize: 28, fontWeight: 700, marginBottom: 24 }}>Loading...</h2>
+          <div style={{ color: '#5eead4' }}>Please wait while we load the reset page.</div>
+        </section>
+      </main>
+    </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <ResetPasswordContent />
+    </Suspense>
   );
 } 
