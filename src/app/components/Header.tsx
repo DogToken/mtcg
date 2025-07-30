@@ -1,6 +1,7 @@
 'use client';
 import React, { useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import UserImage from "./UserImage";
 
@@ -19,6 +20,7 @@ type HeaderProps = {
 
 export default function Header({ editableHeader }: HeaderProps) {
   const { data: session } = useSession();
+  const router = useRouter();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const user = session?.user as SessionUserWithRole | undefined;
@@ -87,14 +89,24 @@ export default function Header({ editableHeader }: HeaderProps) {
           font-weight: 500;
           font-size: 18px;
           transition: color 0.2s;
+          cursor: pointer;
+          user-select: none;
         }
         .nav-link:hover {
           color: #fff !important;
         }
-        .logo-link, .nav-link-home {
+        .nav-link:active {
           color: #fff !important;
         }
+        .logo-link, .nav-link-home {
+          color: #fff !important;
+          cursor: pointer;
+          user-select: none;
+        }
         .nav-link-home:hover {
+          color: #fff !important;
+        }
+        .nav-link-home:active {
           color: #fff !important;
         }
         .logout-link {
@@ -141,6 +153,10 @@ export default function Header({ editableHeader }: HeaderProps) {
               key={item}
               href={item === "Home" ? "/" : `/${item.toLowerCase()}`}
               className={item === "Home" ? "nav-link nav-link-home" : "nav-link"}
+              onClick={(e) => {
+                // Ensure the link works properly
+                e.stopPropagation();
+              }}
             >
               {item}
             </Link>
@@ -176,10 +192,70 @@ export default function Header({ editableHeader }: HeaderProps) {
                   flexDirection: 'column',
                   gap: 0,
                 }}>
-                  <Link href="/dashboard" style={{ padding: '12px 18px', color: '#fff', textDecoration: 'none', fontWeight: 500, borderRadius: 8, transition: 'background 0.2s' }}>Dashboard</Link>
-                  <Link href="/settings" style={{ padding: '12px 18px', color: '#fff', textDecoration: 'none', fontWeight: 500, borderRadius: 8, transition: 'background 0.2s' }}>Profile</Link>
+                  <button
+                    onClick={() => {
+                      setDropdownOpen(false);
+                      router.push('/dashboard');
+                    }}
+                    style={{ 
+                      padding: '12px 18px', 
+                      color: '#fff', 
+                      textDecoration: 'none', 
+                      fontWeight: 500, 
+                      borderRadius: 8, 
+                      transition: 'background 0.2s',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      width: '100%',
+                      textAlign: 'left'
+                    }}
+                  >
+                    Dashboard
+                  </button>
+                  <button
+                    onClick={() => {
+                      setDropdownOpen(false);
+                      router.push('/settings');
+                    }}
+                    style={{ 
+                      padding: '12px 18px', 
+                      color: '#fff', 
+                      textDecoration: 'none', 
+                      fontWeight: 500, 
+                      borderRadius: 8, 
+                      transition: 'background 0.2s',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      width: '100%',
+                      textAlign: 'left'
+                    }}
+                  >
+                    Profile
+                  </button>
                   {user?.role === 'admin' && (
-                    <Link href="/dashboard/admin" style={{ padding: '12px 18px', color: '#fff', textDecoration: 'none', fontWeight: 500, borderRadius: 8, transition: 'background 0.2s' }}>Admin</Link>
+                    <button
+                      onClick={() => {
+                        setDropdownOpen(false);
+                        router.push('/dashboard/admin');
+                      }}
+                      style={{ 
+                        padding: '12px 18px', 
+                        color: '#fff', 
+                        textDecoration: 'none', 
+                        fontWeight: 500, 
+                        borderRadius: 8, 
+                        transition: 'background 0.2s',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        width: '100%',
+                        textAlign: 'left'
+                      }}
+                    >
+                      Admin
+                    </button>
                   )}
                   <button
                     onClick={() => signOut({ callbackUrl: "/login" })}
