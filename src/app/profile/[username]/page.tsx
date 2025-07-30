@@ -14,7 +14,7 @@ export default function PublicProfilePage() {
   const params = useParams();
   const username = decodeURIComponent(params.username as string);
   const [user, setUser] = useState<User | null>(null);
-  const [stats, setStats] = useState({ posts: 0, videos: 0, art: 0 });
+  const [stats, setStats] = useState({ posts: 0, videos: 0, art: 0, rep: 0 });
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
@@ -35,10 +35,11 @@ export default function PublicProfilePage() {
       }
       setUser(data.user);
       // Fetch stats
-      const [blogRes, videoRes, artRes] = await Promise.all([
+      const [blogRes, videoRes, artRes, repRes] = await Promise.all([
         fetch(`/api/blogpost?authorEmail=${data.user.email}`).then(r => r.json()),
         fetch('/api/videos').then(r => r.json()),
         fetch('/api/art').then(r => r.json()),
+        fetch(`/api/rep?email=${data.user.email}`).then(r => r.json()),
       ]);
       interface Video { author?: { email?: string } }
       interface Art { author?: { email?: string } }
@@ -48,6 +49,7 @@ export default function PublicProfilePage() {
         posts: blogRes.posts?.length || 0,
         videos: userVideos.length,
         art: userArt.length,
+        rep: repRes.repCount || 0,
       });
       setLoading(false);
     }
@@ -88,7 +90,7 @@ export default function PublicProfilePage() {
               <div style={{ color: '#5eead4', fontWeight: 600, fontSize: 16 }}>Community Member</div>
             </div>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, marginBottom: 32 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24, marginBottom: 32 }}>
             <div style={{ background: 'rgba(24,28,32,0.98)', borderRadius: 12, padding: 20, textAlign: 'center' }}>
               <div style={{ fontSize: 32, fontWeight: 700, color: '#5eead4', marginBottom: 8 }}>{stats.posts}</div>
               <div style={{ color: '#b3b8c2', fontSize: 16 }}>Blog Posts</div>
@@ -100,6 +102,10 @@ export default function PublicProfilePage() {
             <div style={{ background: 'rgba(24,28,32,0.98)', borderRadius: 12, padding: 20, textAlign: 'center' }}>
               <div style={{ fontSize: 32, fontWeight: 700, color: '#5eead4', marginBottom: 8 }}>{stats.art}</div>
               <div style={{ color: '#b3b8c2', fontSize: 16 }}>Art Pieces</div>
+            </div>
+            <div style={{ background: 'rgba(24,28,32,0.98)', borderRadius: 12, padding: 20, textAlign: 'center' }}>
+              <div style={{ fontSize: 32, fontWeight: 700, color: '#5eead4', marginBottom: 8 }}>⭐ {stats.rep}</div>
+              <div style={{ color: '#b3b8c2', fontSize: 16 }}>REP Points</div>
             </div>
           </div>
         </section>
