@@ -412,7 +412,7 @@ export default function AdminDashboard() {
   const closeContentEdit = () => {
     setEditingContent(null);
     setEditContentType(null);
-    setEditContentData({ title: '', content: '', description: '', url: '', image: '' });
+    setEditContentData({ title: '', content: '', description: '', url: '', image: '', slug: '' });
   };
 
   const handleContentEditSave = async () => {
