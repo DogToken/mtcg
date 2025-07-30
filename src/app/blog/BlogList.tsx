@@ -1,6 +1,5 @@
 'use client';
 import React from "react";
-import Link from "next/link";
 import UserImage from "../components/UserImage";
 
 // Helper function to strip markdown for previews
@@ -40,9 +39,9 @@ export default function BlogList({ posts }: { posts: BlogPost[] }) {
         <div style={{ color: '#b3b8c2', fontSize: 18, textAlign: 'center' }}>No blog posts yet.</div>
       )}
       {posts.map((post) => (
-        <Link
+        <button
           key={post._id}
-          href={`/blog/${post.slug}`}
+          onClick={() => window.location.href = `/blog/${post.slug}`}
           style={{
             background: 'rgba(34, 38, 44, 0.95)',
             borderRadius: 16,
@@ -55,6 +54,10 @@ export default function BlogList({ posts }: { posts: BlogPost[] }) {
             alignItems: 'center',
             gap: 24,
             transition: 'box-shadow 0.2s',
+            border: 'none',
+            cursor: 'pointer',
+            width: '100%',
+            fontFamily: 'inherit'
           }}
         >
           <UserImage src={post.author?.image} alt={post.author?.name || "User"} size={64} />
@@ -68,7 +71,7 @@ export default function BlogList({ posts }: { posts: BlogPost[] }) {
             </div>
             <div style={{ color: '#fff', fontWeight: 600, fontSize: 15 }}>{post.author?.name || "User"}</div>
           </div>
-        </Link>
+        </button>
       ))}
     </div>
   );

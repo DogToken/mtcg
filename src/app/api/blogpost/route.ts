@@ -9,19 +9,29 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const { title, tags, slug, body } = await req.json();
-  if (!title || !slug || !body) {
-    return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+  if (!title || !body) {
+    return NextResponse.json({ error: "Title and body are required" }, { status: 400 });
   }
+  
   const client = await clientPromise;
   const db = client.db();
-  const existing = await db.collection("posts").findOne({ slug });
-  if (existing) {
-    return NextResponse.json({ error: "Slug already exists" }, { status: 400 });
+  
+  // Generate slug from title if not provided
+  let finalSlug = slug || title.toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  
+  // Handle slug conflicts by adding a number suffix
+  let counter = 1;
+  let originalSlug = finalSlug;
+  while (await db.collection("posts").findOne({ slug: finalSlug })) {
+    finalSlug = `${originalSlug}-${counter}`;
+    counter++;
   }
   const post = {
     title,
     tags: tags ? tags.split(",").map((t: string) => t.trim()) : [],
-    slug,
+    slug: finalSlug,
     content: body,
     author: {
       name: session.user.name,

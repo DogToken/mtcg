@@ -377,11 +377,10 @@ export default function DashboardPage() {
                     />
                     <input
                       type="text"
-                      placeholder="Slug (unique, e.g. my-first-post)"
+                      placeholder="Slug (optional, auto-generated from title)"
                       className="login-input"
                       value={slug}
                       onChange={e => setSlug(e.target.value)}
-                      required
                     />
                     
                     {useMarkdown && showPreview ? (

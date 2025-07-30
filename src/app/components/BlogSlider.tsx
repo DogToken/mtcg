@@ -1,6 +1,5 @@
 'use client';
 import React, { useState, useRef } from 'react';
-import Link from 'next/link';
 
 // Helper function to strip markdown for previews
 const stripMarkdown = (text: string): string => {
@@ -63,9 +62,9 @@ export default function BlogSlider({ posts }: { posts: BlogPost[] }) {
         }}
       >
         {posts.map((post, idx) => (
-          <Link
+          <button
             key={post._id}
-            href={`/blog/${post.slug}`}
+            onClick={() => window.location.href = `/blog/${post.slug}`}
             style={{
               minWidth: 300,
               maxWidth: 320,
@@ -81,6 +80,7 @@ export default function BlogSlider({ posts }: { posts: BlogPost[] }) {
               textDecoration: 'none',
               color: 'inherit',
               display: 'block',
+              fontFamily: 'inherit'
             }}
           >
             <div style={{ fontWeight: 700, fontSize: 20, marginBottom: 8 }}>{post.title}</div>
@@ -99,7 +99,7 @@ export default function BlogSlider({ posts }: { posts: BlogPost[] }) {
             ) : (
               <div style={{ color: '#fff', fontWeight: 600, fontSize: 15 }}>User</div>
             )}
-          </Link>
+          </button>
         ))}
       </div>
       <div style={{ display: 'flex', justifyContent: 'center', gap: 10, marginTop: 12 }}>
