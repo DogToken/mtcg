@@ -73,11 +73,11 @@ export default function Header({ editableHeader }: HeaderProps) {
       }
     }
     if (dropdownOpen) {
-      document.addEventListener("click", handleClick);
+      document.addEventListener("mousedown", handleClick);
     } else {
-      document.removeEventListener("click", handleClick);
+      document.removeEventListener("mousedown", handleClick);
     }
-    return () => document.removeEventListener("click", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
   }, [dropdownOpen]);
 
   return (
@@ -149,17 +149,19 @@ export default function Header({ editableHeader }: HeaderProps) {
         )}
         <nav style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
           {navItems.map((item) => (
-            <Link
+            <button
               key={item}
-              href={item === "Home" ? "/" : `/${item.toLowerCase()}`}
+              onClick={() => router.push(item === "Home" ? "/" : `/${item.toLowerCase()}`)}
               className={item === "Home" ? "nav-link nav-link-home" : "nav-link"}
-              onClick={(e) => {
-                // Ensure the link works properly
-                e.stopPropagation();
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                fontFamily: 'inherit'
               }}
             >
               {item}
-            </Link>
+            </button>
           ))}
           {session ? (
             <div style={{ position: 'relative' }} ref={dropdownRef}>
@@ -194,42 +196,46 @@ export default function Header({ editableHeader }: HeaderProps) {
                 }}>
                   <button
                     onClick={() => {
-                      setDropdownOpen(false);
                       router.push('/dashboard');
+                      setTimeout(() => setDropdownOpen(false), 100);
                     }}
                     style={{ 
                       padding: '12px 18px', 
                       color: '#fff', 
                       textDecoration: 'none', 
                       fontWeight: 500, 
+                      fontSize: 18,
                       borderRadius: 8, 
                       transition: 'background 0.2s',
                       background: 'none',
                       border: 'none',
                       cursor: 'pointer',
                       width: '100%',
-                      textAlign: 'left'
+                      textAlign: 'left',
+                      fontFamily: 'inherit'
                     }}
                   >
                     Dashboard
                   </button>
                   <button
                     onClick={() => {
-                      setDropdownOpen(false);
                       router.push('/settings');
+                      setTimeout(() => setDropdownOpen(false), 100);
                     }}
                     style={{ 
                       padding: '12px 18px', 
                       color: '#fff', 
                       textDecoration: 'none', 
                       fontWeight: 500, 
+                      fontSize: 18,
                       borderRadius: 8, 
                       transition: 'background 0.2s',
                       background: 'none',
                       border: 'none',
                       cursor: 'pointer',
                       width: '100%',
-                      textAlign: 'left'
+                      textAlign: 'left',
+                      fontFamily: 'inherit'
                     }}
                   >
                     Profile
@@ -237,21 +243,23 @@ export default function Header({ editableHeader }: HeaderProps) {
                   {user?.role === 'admin' && (
                     <button
                       onClick={() => {
-                        setDropdownOpen(false);
                         router.push('/dashboard/admin');
+                        setTimeout(() => setDropdownOpen(false), 100);
                       }}
                       style={{ 
                         padding: '12px 18px', 
                         color: '#fff', 
                         textDecoration: 'none', 
                         fontWeight: 500, 
+                        fontSize: 18,
                         borderRadius: 8, 
                         transition: 'background 0.2s',
                         background: 'none',
                         border: 'none',
                         cursor: 'pointer',
                         width: '100%',
-                        textAlign: 'left'
+                        textAlign: 'left',
+                        fontFamily: 'inherit'
                       }}
                     >
                       Admin
