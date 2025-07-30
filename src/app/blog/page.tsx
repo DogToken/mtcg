@@ -26,8 +26,10 @@ async function getPosts(): Promise<BlogPost[]> {
     deleted: { $ne: true } // Exclude posts marked as deleted
   }).sort({ date: -1 }).toArray();
   
+  console.log('Raw posts from database:', posts.length, 'posts found');
+  
   // Map to BlogPost type and filter out any invalid posts
-  return posts
+  const validPosts = posts
     .filter((post: Document) => post && post.title && post.slug) // Basic validation
     .map((post: Document) => ({
       _id: post._id.toString(),
@@ -38,7 +40,15 @@ async function getPosts(): Promise<BlogPost[]> {
       date: post.date,
       author: post.author,
     }));
+  
+  console.log('Valid posts after filtering:', validPosts.length, 'posts');
+  console.log('Post titles:', validPosts.map(p => p.title));
+  
+  return validPosts;
 }
+
+// Force revalidation every 10 seconds to ensure fresh data
+export const revalidate = 10;
 
 export default async function BlogPage() {
   const posts: BlogPost[] = await getPosts();
