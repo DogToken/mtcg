@@ -45,7 +45,9 @@ export default function VideosPage() {
       }
     `;
     document.head.appendChild(style);
-    return () => document.head.removeChild(style);
+    return () => {
+      document.head.removeChild(style);
+    };
   }, []);
 
   useEffect(() => {
