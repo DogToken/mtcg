@@ -55,13 +55,15 @@ export async function GET(req: Request) {
     // Return latest 5 posts for homepage
     const posts = await db.collection("posts").find({ 
       deleted: { $ne: true } // Exclude deleted posts
-    }).sort({ _id: -1 }).limit(5).toArray();
+    }).sort({ date: -1 }).limit(5).toArray();
+    console.log('API: Found', posts.length, 'posts for homepage');
     return NextResponse.json({ posts });
   }
   const posts = await db.collection("posts").find({ 
     "author.email": authorEmail,
     deleted: { $ne: true } // Exclude deleted posts
   }).sort({ date: -1 }).toArray();
+  console.log('API: Found', posts.length, 'posts for author:', authorEmail);
   return NextResponse.json({ posts });
 }
 
