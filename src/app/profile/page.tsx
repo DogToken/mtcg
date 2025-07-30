@@ -19,25 +19,45 @@ export default function ProfilePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [userStats, setUserStats] = useState({ posts: 0, videos: 0, art: 0 });
+  const [loading, setLoading] = useState(false);
+
+  const fetchUserStats = async () => {
+    if (!session?.user?.email) return;
+    
+    setLoading(true);
+    try {
+      const [blogRes, videoRes, artRes] = await Promise.all([
+        fetch(`/api/blogpost?authorEmail=${session.user.email}`).then(r => r.json()),
+        fetch('/api/videos').then(r => r.json()),
+        fetch('/api/art').then(r => r.json()),
+      ]);
+      
+      const userVideos = (videoRes.videos || []).filter((v: Video) => v.author?.email === session.user?.email);
+      const userArt = (artRes.art || []).filter((a: Art) => a.author?.email === session.user?.email);
+      
+      // Debug logging
+      console.log('User email:', session.user?.email);
+      console.log('All videos:', videoRes.videos);
+      console.log('User videos:', userVideos);
+      console.log('Video count:', userVideos.length);
+      
+      setUserStats({
+        posts: blogRes.posts?.length || 0,
+        videos: userVideos.length,
+        art: userArt.length,
+      });
+    } catch (error) {
+      console.error('Error fetching user stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
     } else if (status === "authenticated" && session?.user?.email) {
-      // Fetch user stats
-      Promise.all([
-        fetch(`/api/blogpost?authorEmail=${session.user.email}`).then(r => r.json()),
-        fetch('/api/videos').then(r => r.json()),
-        fetch('/api/art').then(r => r.json()),
-      ]).then(([blogRes, videoRes, artRes]) => {
-        const userVideos = (videoRes.videos || []).filter((v: Video) => v.author?.email === session.user?.email);
-        const userArt = (artRes.art || []).filter((a: Art) => a.author?.email === session.user?.email);
-        setUserStats({
-          posts: blogRes.posts?.length || 0,
-          videos: userVideos.length,
-          art: userArt.length,
-        });
-      });
+      fetchUserStats();
     }
   }, [status, session, router]);
 
@@ -127,6 +147,23 @@ export default function ProfilePage() {
                 }}
               >
                 Edit Profile
+              </button>
+              <button
+                onClick={fetchUserStats}
+                disabled={loading}
+                style={{
+                  background: 'rgba(94,234,212,0.1)',
+                  color: '#5eead4',
+                  fontWeight: 700,
+                  border: '1px solid #5eead4',
+                  borderRadius: 8,
+                  padding: '10px 20px',
+                  fontSize: 15,
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  opacity: loading ? 0.6 : 1,
+                }}
+              >
+                {loading ? 'Refreshing...' : 'Refresh Stats'}
               </button>
               {session.user.email === "doggo@dogswap.xyz" && (
                 <button
