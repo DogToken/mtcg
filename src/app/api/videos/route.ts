@@ -55,7 +55,7 @@ export async function PUT(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   
-  const { id, title, description, url } = await req.json();
+  const { id, description, url } = await req.json();
   if (!id || !description || !url) {
     return NextResponse.json({ error: "Missing fields" }, { status: 400 });
   }
@@ -75,7 +75,7 @@ export async function PUT(req: Request) {
       }
     );
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Failed to update video" }, { status: 500 });
   }
 } 

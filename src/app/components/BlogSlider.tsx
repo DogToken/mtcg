@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 // Helper function to strip markdown for previews
 const stripMarkdown = (text: string): string => {
@@ -28,12 +28,50 @@ interface BlogPost {
   author?: {
     name?: string;
     image?: string;
+    email?: string;
   };
 }
 
 export default function BlogSlider({ posts }: { posts: BlogPost[] }) {
   const [active, setActive] = useState(0);
   const sliderRef = useRef<HTMLDivElement>(null);
+  const [clickedPosts, setClickedPosts] = useState<string[]>([]);
+  const [clickingPosts, setClickingPosts] = useState<string[]>([]);
+
+  useEffect(() => {
+    // Load clicked posts from localStorage
+    const stored = JSON.parse(localStorage.getItem('repClickedPosts') || '[]');
+    setClickedPosts(stored);
+  }, []);
+
+  const handleRepClick = async (postId: string, authorEmail?: string) => {
+    if (clickedPosts.includes(postId) || clickingPosts.includes(postId) || !authorEmail) return;
+    
+    setClickingPosts(prev => [...prev, postId]);
+    
+    try {
+      const res = await fetch('/api/rep', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          postId,
+          authorEmail
+        })
+      });
+      
+      if (res.ok) {
+        setClickedPosts(prev => [...prev, postId]);
+        // Store in localStorage
+        const stored = JSON.parse(localStorage.getItem('repClickedPosts') || '[]');
+        stored.push(postId);
+        localStorage.setItem('repClickedPosts', JSON.stringify(stored));
+      }
+    } catch (error) {
+      console.error('Error clicking REP:', error);
+    } finally {
+      setClickingPosts(prev => prev.filter(id => id !== postId));
+    }
+  };
 
   const handleDotClick = (idx: number) => {
     setActive(idx);
@@ -88,17 +126,41 @@ export default function BlogSlider({ posts }: { posts: BlogPost[] }) {
             <div style={{ color: '#b3b8c2', fontSize: 16, marginBottom: 8 }}>
               {post.excerpt || (post.content ? stripMarkdown(post.content).slice(0, 100) + (stripMarkdown(post.content).length > 100 ? '...' : '') : '')}
             </div>
-            {post.author?.name ? (
-              <a
-                href={`/profile/${encodeURIComponent(post.author.name)}`}
-                style={{ color: '#5eead4', fontWeight: 600, fontSize: 15, textDecoration: 'underline', cursor: 'pointer' }}
-                onClick={e => { e.stopPropagation(); }}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              {post.author?.name ? (
+                <a
+                  href={`/profile/${encodeURIComponent(post.author.name)}`}
+                  style={{ color: '#5eead4', fontWeight: 600, fontSize: 15, textDecoration: 'underline', cursor: 'pointer' }}
+                  onClick={e => { e.stopPropagation(); }}
+                >
+                  {post.author.name}
+                </a>
+              ) : (
+                <div style={{ color: '#fff', fontWeight: 600, fontSize: 15 }}>User</div>
+              )}
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleRepClick(post._id, post.author?.email);
+                }}
+                disabled={clickedPosts.includes(post._id) || clickingPosts.includes(post._id)}
+                style={{
+                  background: clickedPosts.includes(post._id) ? '#5eead4' : '#2a2e33',
+                  color: clickedPosts.includes(post._id) ? '#181c20' : '#5eead4',
+                  border: '1px solid #5eead4',
+                  borderRadius: 4,
+                  padding: '4px 8px',
+                  fontWeight: 600,
+                  cursor: clickedPosts.includes(post._id) || clickingPosts.includes(post._id) ? 'not-allowed' : 'pointer',
+                  fontSize: 10,
+                  transition: 'all 0.2s',
+                  opacity: clickedPosts.includes(post._id) || clickingPosts.includes(post._id) ? 0.7 : 1
+                }}
               >
-                {post.author.name}
-              </a>
-            ) : (
-              <div style={{ color: '#fff', fontWeight: 600, fontSize: 15 }}>User</div>
-            )}
+                {clickingPosts.includes(post._id) ? '🔄' : clickedPosts.includes(post._id) ? '✅' : '⭐'}
+              </button>
+            </div>
           </button>
         ))}
       </div>

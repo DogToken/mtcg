@@ -82,11 +82,26 @@ export default function AdminDashboard() {
   const [resetError, setResetError] = useState('');
   
   // Content Management State
-  const [allPosts, setAllPosts] = useState<any[]>([]);
-  const [allVideos, setAllVideos] = useState<any[]>([]);
-  const [allArt, setAllArt] = useState<any[]>([]);
+  interface ContentItem {
+    _id: string;
+    title?: string;
+    content?: string;
+    description?: string;
+    url?: string;
+    image?: string;
+    author?: {
+      name?: string;
+      email?: string;
+      image?: string;
+    };
+    date?: string;
+  }
+
+  const [allPosts, setAllPosts] = useState<ContentItem[]>([]);
+  const [allVideos, setAllVideos] = useState<ContentItem[]>([]);
+  const [allArt, setAllArt] = useState<ContentItem[]>([]);
   const [contentLoading, setContentLoading] = useState(false);
-  const [editingContent, setEditingContent] = useState<any>(null);
+  const [editingContent, setEditingContent] = useState<ContentItem | null>(null);
   const [editContentType, setEditContentType] = useState<'post' | 'video' | 'art' | null>(null);
   const [editContentData, setEditContentData] = useState({
     title: '',
@@ -377,7 +392,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const openContentEdit = (content: any, type: 'post' | 'video' | 'art') => {
+  const openContentEdit = (content: ContentItem, type: 'post' | 'video' | 'art') => {
     setEditingContent(content);
     setEditContentType(type);
     setEditContentData({
@@ -405,7 +420,7 @@ export default function AdminDashboard() {
     
     try {
       let endpoint = '';
-      let payload: any = {};
+      let payload: Record<string, unknown> = {};
       
       switch (editContentType) {
         case 'post':
@@ -450,12 +465,12 @@ export default function AdminDashboard() {
         fetchAllContent(); // Refresh the content list
         setTimeout(() => closeContentEdit(), 1500);
       }
-    } catch (error) {
+    } catch {
       setEditContentError('An error occurred. Please try again.');
     }
   };
 
-  const handleContentDelete = async (content: any, type: 'post' | 'video' | 'art') => {
+  const handleContentDelete = async (content: ContentItem, type: 'post' | 'video' | 'art') => {
     if (!confirm(`Are you sure you want to delete this ${type}?`)) return;
     
     try {
@@ -482,7 +497,7 @@ export default function AdminDashboard() {
         alert(`${type} deleted successfully!`);
         fetchAllContent(); // Refresh the content list
       }
-    } catch (error) {
+    } catch {
       alert('An error occurred. Please try again.');
     }
   };

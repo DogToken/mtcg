@@ -78,7 +78,7 @@ export async function PUT(req: NextRequest) {
       }
     );
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Failed to update art" }, { status: 500 });
   }
 } 

@@ -1,5 +1,5 @@
 'use client';
-import React from "react";
+import React, { useState, useEffect } from "react";
 import UserImage from "../components/UserImage";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -14,10 +14,51 @@ interface BlogPost {
   author?: {
     name?: string;
     image?: string;
+    email?: string;
   };
 }
 
 export default function BlogPostView({ blogPost }: { blogPost: BlogPost }) {
+  const [hasClickedRep, setHasClickedRep] = useState(false);
+  const [isClicking, setIsClicking] = useState(false);
+
+  useEffect(() => {
+    // Check if user has already clicked REP for this post
+    const clickedPosts = JSON.parse(localStorage.getItem('repClickedPosts') || '[]');
+    if (clickedPosts.includes(blogPost._id)) {
+      setHasClickedRep(true);
+    }
+  }, [blogPost._id]);
+
+  const handleRepClick = async () => {
+    if (hasClickedRep || isClicking || !blogPost.author?.email) return;
+    
+    setIsClicking(true);
+    
+    try {
+      const res = await fetch('/api/rep', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          postId: blogPost._id,
+          authorEmail: blogPost.author.email
+        })
+      });
+      
+      if (res.ok) {
+        setHasClickedRep(true);
+        // Store in localStorage to prevent future clicks
+        const clickedPosts = JSON.parse(localStorage.getItem('repClickedPosts') || '[]');
+        clickedPosts.push(blogPost._id);
+        localStorage.setItem('repClickedPosts', JSON.stringify(clickedPosts));
+      }
+    } catch (error) {
+      console.error('Error clicking REP:', error);
+    } finally {
+      setIsClicking(false);
+    }
+  };
+
   return (
     <article style={{
       background: 'rgba(34, 38, 44, 0.95)',
@@ -41,6 +82,24 @@ export default function BlogPostView({ blogPost }: { blogPost: BlogPost }) {
           )}
           <div style={{ color: '#5eead4', fontSize: 14 }}>{blogPost.date ? new Date(blogPost.date).toLocaleDateString() : ""}</div>
         </div>
+        <button
+          onClick={handleRepClick}
+          disabled={hasClickedRep || isClicking}
+          style={{
+            background: hasClickedRep ? '#5eead4' : '#2a2e33',
+            color: hasClickedRep ? '#181c20' : '#5eead4',
+            border: '1px solid #5eead4',
+            borderRadius: 8,
+            padding: '8px 16px',
+            fontWeight: 700,
+            cursor: hasClickedRep || isClicking ? 'not-allowed' : 'pointer',
+            fontSize: 14,
+            transition: 'all 0.2s',
+            opacity: hasClickedRep || isClicking ? 0.7 : 1
+          }}
+        >
+          {isClicking ? '🔄' : hasClickedRep ? '✅ REP' : '⭐ REP'}
+        </button>
       </div>
       <h1 style={{ fontSize: 32, fontWeight: 800, marginBottom: 18 }}>{blogPost.title}</h1>
       <div style={{ color: '#b3b8c2', fontSize: 18, lineHeight: 1.7 }}>

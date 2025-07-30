@@ -19,6 +19,7 @@ export default function ProfilePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [userStats, setUserStats] = useState({ posts: 0, videos: 0, art: 0 });
+  const [repCount, setRepCount] = useState(0);
   const [loading, setLoading] = useState(false);
 
   const fetchUserStats = async () => {
@@ -26,10 +27,11 @@ export default function ProfilePage() {
     
     setLoading(true);
     try {
-      const [blogRes, videoRes, artRes] = await Promise.all([
+      const [blogRes, videoRes, artRes, repRes] = await Promise.all([
         fetch(`/api/blogpost?authorEmail=${session.user.email}`).then(r => r.json()),
         fetch('/api/videos').then(r => r.json()),
         fetch('/api/art').then(r => r.json()),
+        fetch(`/api/rep?email=${session.user.email}`).then(r => r.json()),
       ]);
       
       const userVideos = (videoRes.videos || []).filter((v: Video) => v.author?.email === session.user?.email);
@@ -46,6 +48,8 @@ export default function ProfilePage() {
         videos: userVideos.length,
         art: userArt.length,
       });
+      
+      setRepCount(repRes.repCount || 0);
     } catch (error) {
       console.error('Error fetching user stats:', error);
     } finally {
@@ -100,7 +104,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, marginBottom: 32 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24, marginBottom: 32 }}>
             <div style={{ background: 'rgba(24,28,32,0.98)', borderRadius: 12, padding: 20, textAlign: 'center' }}>
               <div style={{ fontSize: 32, fontWeight: 700, color: '#5eead4', marginBottom: 8 }}>{userStats.posts}</div>
               <div style={{ color: '#b3b8c2', fontSize: 16 }}>Blog Posts</div>
@@ -112,6 +116,10 @@ export default function ProfilePage() {
             <div style={{ background: 'rgba(24,28,32,0.98)', borderRadius: 12, padding: 20, textAlign: 'center' }}>
               <div style={{ fontSize: 32, fontWeight: 700, color: '#5eead4', marginBottom: 8 }}>{userStats.art}</div>
               <div style={{ color: '#b3b8c2', fontSize: 16 }}>Art Pieces</div>
+            </div>
+            <div style={{ background: 'rgba(24,28,32,0.98)', borderRadius: 12, padding: 20, textAlign: 'center' }}>
+              <div style={{ fontSize: 32, fontWeight: 700, color: '#5eead4', marginBottom: 8 }}>⭐ {repCount}</div>
+              <div style={{ color: '#b3b8c2', fontSize: 16 }}>REP Points</div>
             </div>
           </div>
 
