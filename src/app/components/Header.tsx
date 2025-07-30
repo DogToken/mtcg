@@ -1,7 +1,5 @@
 'use client';
 import React, { useRef, useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import UserImage from "./UserImage";
 
@@ -20,7 +18,6 @@ type HeaderProps = {
 
 export default function Header({ editableHeader }: HeaderProps) {
   const { data: session } = useSession();
-  const router = useRouter();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const user = session?.user as SessionUserWithRole | undefined;
