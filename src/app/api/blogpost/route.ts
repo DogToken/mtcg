@@ -18,7 +18,9 @@ export async function POST(req: Request) {
   
   // Generate slug from title if not provided
   let finalSlug = slug || title.toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+    .replace(/-+/g, '-')
     .replace(/^-+|-+$/g, '');
   
   // Handle slug conflicts by adding a number suffix
@@ -89,7 +91,7 @@ export async function PUT(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   
-  const { id, title, content } = await req.json();
+  const { id, title, content, slug } = await req.json();
   if (!id || !title || !content) {
     return NextResponse.json({ error: "Missing fields" }, { status: 400 });
   }
@@ -98,15 +100,40 @@ export async function PUT(req: Request) {
   const db = client.db();
   
   try {
+    // Validate and clean slug if provided
+    let finalSlug = slug;
+    if (slug) {
+      // Replace spaces with dashes and clean the slug
+      finalSlug = slug.toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '')
+        .replace(/-+/g, '-')
+        .replace(/^-+|-+$/g, '');
+      
+      // Check if slug already exists (excluding current post)
+      const existingPost = await db.collection("posts").findOne({ 
+        slug: finalSlug, 
+        _id: { $ne: new (await import('mongodb')).ObjectId(id) } 
+      });
+      
+      if (existingPost) {
+        return NextResponse.json({ error: "Slug already exists" }, { status: 400 });
+      }
+    }
+
+    const updateData: Record<string, unknown> = { 
+      title,
+      content,
+      updatedAt: new Date().toISOString()
+    };
+    
+    if (finalSlug) {
+      updateData.slug = finalSlug;
+    }
+
     await db.collection("posts").updateOne(
       { _id: new (await import('mongodb')).ObjectId(id) },
-      { 
-        $set: { 
-          title,
-          content,
-          updatedAt: new Date().toISOString()
-        } 
-      }
+      { $set: updateData }
     );
     return NextResponse.json({ success: true });
   } catch {

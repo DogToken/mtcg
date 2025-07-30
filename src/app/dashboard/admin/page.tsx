@@ -109,7 +109,8 @@ export default function AdminDashboard() {
     content: '',
     description: '',
     url: '',
-    image: ''
+    image: '',
+    slug: ''
   });
   const [editContentError, setEditContentError] = useState('');
   const [editContentSuccess, setEditContentSuccess] = useState('');
@@ -401,7 +402,8 @@ export default function AdminDashboard() {
       content: content.content || '',
       description: content.description || '',
       url: content.url || '',
-      image: content.image || ''
+      image: content.image || '',
+      slug: content.slug || ''
     });
     setEditContentError('');
     setEditContentSuccess('');
@@ -429,7 +431,8 @@ export default function AdminDashboard() {
           payload = {
             id: editingContent._id,
             title: editContentData.title,
-            content: editContentData.content
+            content: editContentData.content,
+            slug: editContentData.slug
           };
           break;
         case 'video':
@@ -442,14 +445,9 @@ export default function AdminDashboard() {
           };
           break;
         case 'art':
-          endpoint = '/api/art';
-          payload = {
-            id: editingContent._id,
-            title: editContentData.title,
-            description: editContentData.description,
-            image: editContentData.image
-          };
-          break;
+          // Art editing is disabled
+          setEditContentError('Art editing is not available');
+          return;
       }
       
       const res = await fetch(endpoint, {
@@ -1020,21 +1018,6 @@ export default function AdminDashboard() {
                       </div>
                       <div style={{ display: 'flex', gap: 8 }}>
                         <button
-                          onClick={() => openContentEdit(art, 'art')}
-                          style={{
-                            background: '#5eead4',
-                            color: '#181c20',
-                            border: 'none',
-                            borderRadius: 6,
-                            padding: '6px 12px',
-                            fontWeight: 600,
-                            cursor: 'pointer',
-                            fontSize: 12
-                          }}
-                        >
-                          ✏️ Edit
-                        </button>
-                        <button
                           onClick={() => handleContentDelete(art, 'art')}
                           style={{
                             background: '#ff4d4f',
@@ -1140,6 +1123,18 @@ export default function AdminDashboard() {
             
             {editContentType === 'post' && (
               <div style={{ marginBottom: 14 }}>
+                <label style={{ fontWeight: 600, fontSize: 15, display: 'block', marginBottom: 4 }}>Slug</label>
+                <input 
+                  value={editContentData.slug} 
+                  onChange={e => setEditContentData(prev => ({ ...prev, slug: e.target.value }))} 
+                  placeholder="my-blog-post-slug"
+                  style={{ width: '100%', borderRadius: 8, border: '1px solid #2a2e33', background: '#181c20', color: '#fff', padding: 8, fontSize: 15 }} 
+                />
+              </div>
+            )}
+            
+            {editContentType === 'post' && (
+              <div style={{ marginBottom: 14 }}>
                 <label style={{ fontWeight: 600, fontSize: 15, display: 'block', marginBottom: 4 }}>Content</label>
                 <textarea 
                   value={editContentData.content} 
@@ -1151,25 +1146,14 @@ export default function AdminDashboard() {
             )}
             
             {editContentType === 'video' && (
-              <>
-                <div style={{ marginBottom: 14 }}>
-                  <label style={{ fontWeight: 600, fontSize: 15, display: 'block', marginBottom: 4 }}>Description</label>
-                  <textarea 
-                    value={editContentData.description} 
-                    onChange={e => setEditContentData(prev => ({ ...prev, description: e.target.value }))} 
-                    rows={4}
-                    style={{ width: '100%', borderRadius: 8, border: '1px solid #2a2e33', background: '#181c20', color: '#fff', padding: 8, fontSize: 15, resize: 'vertical' }} 
-                  />
-                </div>
-                <div style={{ marginBottom: 14 }}>
-                  <label style={{ fontWeight: 600, fontSize: 15, display: 'block', marginBottom: 4 }}>Video URL</label>
-                  <input 
-                    value={editContentData.url} 
-                    onChange={e => setEditContentData(prev => ({ ...prev, url: e.target.value }))} 
-                    style={{ width: '100%', borderRadius: 8, border: '1px solid #2a2e33', background: '#181c20', color: '#fff', padding: 8, fontSize: 15 }} 
-                  />
-                </div>
-              </>
+              <div style={{ marginBottom: 14 }}>
+                <label style={{ fontWeight: 600, fontSize: 15, display: 'block', marginBottom: 4 }}>Video URL</label>
+                <input 
+                  value={editContentData.url} 
+                  onChange={e => setEditContentData(prev => ({ ...prev, url: e.target.value }))} 
+                  style={{ width: '100%', borderRadius: 8, border: '1px solid #2a2e33', background: '#181c20', color: '#fff', padding: 8, fontSize: 15 }} 
+                />
+              </div>
             )}
             
             {editContentType === 'art' && (
