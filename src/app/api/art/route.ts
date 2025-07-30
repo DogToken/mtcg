@@ -49,4 +49,36 @@ export async function DELETE(req: NextRequest) {
   }
   await db.collection('art').deleteOne({ _id: art._id });
   return NextResponse.json({ success: true });
+}
+
+export async function PUT(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user || session.user.role !== 'admin') {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  
+  const { id, title, description, image } = await req.json();
+  if (!id || !title || !description || !image) {
+    return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+  }
+  
+  const client = await clientPromise;
+  const db = client.db('mtcg');
+  
+  try {
+    await db.collection('art').updateOne(
+      { _id: new (await import('mongodb')).ObjectId(id) },
+      { 
+        $set: { 
+          title,
+          description,
+          url: image, // Map image to url field
+          updatedAt: new Date().toISOString()
+        } 
+      }
+    );
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json({ error: "Failed to update art" }, { status: 500 });
+  }
 } 

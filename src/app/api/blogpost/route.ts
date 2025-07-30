@@ -23,7 +23,7 @@ export async function POST(req: Request) {
   
   // Handle slug conflicts by adding a number suffix
   let counter = 1;
-  let originalSlug = finalSlug;
+  const originalSlug = finalSlug;
   while (await db.collection("posts").findOne({ slug: finalSlug })) {
     finalSlug = `${originalSlug}-${counter}`;
     counter++;
@@ -81,4 +81,35 @@ export async function DELETE(req: Request) {
     }
   );
   return NextResponse.json({ success: true });
+}
+
+export async function PUT(req: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user || session.user.role !== 'admin') {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  
+  const { id, title, content } = await req.json();
+  if (!id || !title || !content) {
+    return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+  }
+  
+  const client = await clientPromise;
+  const db = client.db();
+  
+  try {
+    await db.collection("posts").updateOne(
+      { _id: new (await import('mongodb')).ObjectId(id) },
+      { 
+        $set: { 
+          title,
+          content,
+          updatedAt: new Date().toISOString()
+        } 
+      }
+    );
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json({ error: "Failed to update post" }, { status: 500 });
+  }
 } 

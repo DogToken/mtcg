@@ -37,7 +37,7 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [blockReg, setBlockReg] = useState(false);
-  const [selectedTab, setSelectedTab] = useState<'Users' | 'Content' | 'Site' | 'Security'>('Users');
+  const [selectedTab, setSelectedTab] = useState<'Users' | 'Content' | 'Site' | 'Security' | 'Content Management'>('Users');
   const [footerContent, setFooterContent] = useState<FooterContent | null>(null);
   const [footerLoading, setFooterLoading] = useState(false);
   const [footerSuccess, setFooterSuccess] = useState('');
@@ -80,6 +80,23 @@ export default function AdminDashboard() {
   const [resetLoading, setResetLoading] = useState(false);
   const [resetSuccess, setResetSuccess] = useState('');
   const [resetError, setResetError] = useState('');
+  
+  // Content Management State
+  const [allPosts, setAllPosts] = useState<any[]>([]);
+  const [allVideos, setAllVideos] = useState<any[]>([]);
+  const [allArt, setAllArt] = useState<any[]>([]);
+  const [contentLoading, setContentLoading] = useState(false);
+  const [editingContent, setEditingContent] = useState<any>(null);
+  const [editContentType, setEditContentType] = useState<'post' | 'video' | 'art' | null>(null);
+  const [editContentData, setEditContentData] = useState({
+    title: '',
+    content: '',
+    description: '',
+    url: '',
+    image: ''
+  });
+  const [editContentError, setEditContentError] = useState('');
+  const [editContentSuccess, setEditContentSuccess] = useState('');
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -98,6 +115,9 @@ export default function AdminDashboard() {
         fetchFooter();
         fetchEcoWelcome();
         fetchEcoEngagement();
+      }
+      if (selectedTab === 'Content Management') {
+        fetchAllContent();
         fetchEcoResources();
         fetchHeroSlides();
         fetchSiteInfo();
@@ -337,6 +357,136 @@ export default function AdminDashboard() {
     }
   };
 
+  // Content Management Functions
+  const fetchAllContent = async () => {
+    setContentLoading(true);
+    try {
+      const [postsRes, videosRes, artRes] = await Promise.all([
+        fetch('/api/blogpost').then(r => r.json()),
+        fetch('/api/videos').then(r => r.json()),
+        fetch('/api/art').then(r => r.json())
+      ]);
+      
+      setAllPosts(postsRes.posts || []);
+      setAllVideos(videosRes.videos || []);
+      setAllArt(artRes.art || []);
+    } catch (error) {
+      console.error('Error fetching content:', error);
+    } finally {
+      setContentLoading(false);
+    }
+  };
+
+  const openContentEdit = (content: any, type: 'post' | 'video' | 'art') => {
+    setEditingContent(content);
+    setEditContentType(type);
+    setEditContentData({
+      title: content.title || '',
+      content: content.content || '',
+      description: content.description || '',
+      url: content.url || '',
+      image: content.image || ''
+    });
+    setEditContentError('');
+    setEditContentSuccess('');
+  };
+
+  const closeContentEdit = () => {
+    setEditingContent(null);
+    setEditContentType(null);
+    setEditContentData({ title: '', content: '', description: '', url: '', image: '' });
+  };
+
+  const handleContentEditSave = async () => {
+    if (!editingContent || !editContentType) return;
+    
+    setEditContentError('');
+    setEditContentSuccess('');
+    
+    try {
+      let endpoint = '';
+      let payload: any = {};
+      
+      switch (editContentType) {
+        case 'post':
+          endpoint = '/api/blogpost';
+          payload = {
+            id: editingContent._id,
+            title: editContentData.title,
+            content: editContentData.content
+          };
+          break;
+        case 'video':
+          endpoint = '/api/videos';
+          payload = {
+            id: editingContent._id,
+            title: editContentData.title,
+            description: editContentData.description,
+            url: editContentData.url
+          };
+          break;
+        case 'art':
+          endpoint = '/api/art';
+          payload = {
+            id: editingContent._id,
+            title: editContentData.title,
+            description: editContentData.description,
+            image: editContentData.image
+          };
+          break;
+      }
+      
+      const res = await fetch(endpoint, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      
+      if (!res.ok) {
+        const data = await res.json();
+        setEditContentError(data.error || 'Failed to update content');
+      } else {
+        setEditContentSuccess('Content updated successfully!');
+        fetchAllContent(); // Refresh the content list
+        setTimeout(() => closeContentEdit(), 1500);
+      }
+    } catch (error) {
+      setEditContentError('An error occurred. Please try again.');
+    }
+  };
+
+  const handleContentDelete = async (content: any, type: 'post' | 'video' | 'art') => {
+    if (!confirm(`Are you sure you want to delete this ${type}?`)) return;
+    
+    try {
+      let endpoint = '';
+      
+      switch (type) {
+        case 'post':
+          endpoint = `/api/blogpost?id=${content._id}`;
+          break;
+        case 'video':
+          endpoint = `/api/videos?id=${content._id}`;
+          break;
+        case 'art':
+          endpoint = `/api/art?id=${content._id}`;
+          break;
+      }
+      
+      const res = await fetch(endpoint, { method: 'DELETE' });
+      
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.error || 'Failed to delete content');
+      } else {
+        alert(`${type} deleted successfully!`);
+        fetchAllContent(); // Refresh the content list
+      }
+    } catch (error) {
+      alert('An error occurred. Please try again.');
+    }
+  };
+
   if (status === "loading" || loading) {
     return <div style={{ color: '#5eead4', textAlign: 'center', marginTop: 80 }}>Loading...</div>;
   }
@@ -359,6 +509,7 @@ export default function AdminDashboard() {
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={() => setSelectedTab('Users')} style={{ color: selectedTab === 'Users' ? '#fff' : '#5eead4', background: selectedTab === 'Users' ? 'rgba(94,234,212,0.18)' : 'none', fontWeight: 700, fontSize: 16, border: 'none', borderRadius: 8, padding: '12px 20px', cursor: 'pointer', transition: 'background 0.2s, color 0.2s' }}>👥 Users</button>
             <button onClick={() => setSelectedTab('Content')} style={{ color: selectedTab === 'Content' ? '#fff' : '#5eead4', background: selectedTab === 'Content' ? 'rgba(94,234,212,0.18)' : 'none', fontWeight: 700, fontSize: 16, border: 'none', borderRadius: 8, padding: '12px 20px', cursor: 'pointer', transition: 'background 0.2s, color 0.2s' }}>📝 Content</button>
+            <button onClick={() => setSelectedTab('Content Management')} style={{ color: selectedTab === 'Content Management' ? '#fff' : '#5eead4', background: selectedTab === 'Content Management' ? 'rgba(94,234,212,0.18)' : 'none', fontWeight: 700, fontSize: 16, border: 'none', borderRadius: 8, padding: '12px 20px', cursor: 'pointer', transition: 'background 0.2s, color 0.2s' }}>🗂️ Content Management</button>
             <button onClick={() => setSelectedTab('Site')} style={{ color: selectedTab === 'Site' ? '#fff' : '#5eead4', background: selectedTab === 'Site' ? 'rgba(94,234,212,0.18)' : 'none', fontWeight: 700, fontSize: 16, border: 'none', borderRadius: 8, padding: '12px 20px', cursor: 'pointer', transition: 'background 0.2s, color 0.2s' }}>⚙️ Site</button>
             <button onClick={() => setSelectedTab('Security')} style={{ color: selectedTab === 'Security' ? '#fff' : '#5eead4', background: selectedTab === 'Security' ? 'rgba(94,234,212,0.18)' : 'none', fontWeight: 700, fontSize: 16, border: 'none', borderRadius: 8, padding: '12px 20px', cursor: 'pointer', transition: 'background 0.2s, color 0.2s' }}>🔒 Security</button>
           </div>
@@ -680,6 +831,216 @@ export default function AdminDashboard() {
             </div>
           </div>
         )}
+
+        {selectedTab === 'Content Management' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h3 style={{ fontSize: 22, fontWeight: 700, color: '#5eead4' }}>🗂️ Content Management</h3>
+              <button 
+                onClick={fetchAllContent} 
+                disabled={contentLoading}
+                style={{ 
+                  background: '#5eead4', 
+                  color: '#181c20', 
+                  border: 'none', 
+                  borderRadius: 8, 
+                  padding: '8px 16px', 
+                  fontWeight: 700, 
+                  cursor: 'pointer',
+                  fontSize: 14
+                }}
+              >
+                {contentLoading ? '🔄 Loading...' : '🔄 Refresh'}
+              </button>
+            </div>
+
+            {/* Blog Posts */}
+            <div style={{ background: '#23272b', borderRadius: 16, padding: 24, boxShadow: '0 2px 16px 0 rgba(0,255,255,0.06)' }}>
+              <h4 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16, color: '#fff' }}>📝 Blog Posts ({allPosts.length})</h4>
+              {allPosts.length === 0 ? (
+                <div style={{ color: '#b3b8c2', textAlign: 'center', padding: 20 }}>No blog posts found.</div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {allPosts.map((post) => (
+                    <div key={post._id} style={{
+                      background: '#181c20',
+                      borderRadius: 12,
+                      padding: 16,
+                      border: '1px solid #2a2e33',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
+                    }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 700, fontSize: 16, color: '#fff', marginBottom: 4 }}>{post.title}</div>
+                        <div style={{ color: '#b3b8c2', fontSize: 14, marginBottom: 4 }}>
+                          By: {post.author?.name || 'Unknown'} • {post.date ? new Date(post.date).toLocaleDateString() : 'No date'}
+                        </div>
+                        <div style={{ color: '#5eead4', fontSize: 12 }}>Slug: {post.slug}</div>
+                      </div>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button
+                          onClick={() => openContentEdit(post, 'post')}
+                          style={{
+                            background: '#5eead4',
+                            color: '#181c20',
+                            border: 'none',
+                            borderRadius: 6,
+                            padding: '6px 12px',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            fontSize: 12
+                          }}
+                        >
+                          ✏️ Edit
+                        </button>
+                        <button
+                          onClick={() => handleContentDelete(post, 'post')}
+                          style={{
+                            background: '#ff4d4f',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: 6,
+                            padding: '6px 12px',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            fontSize: 12
+                          }}
+                        >
+                          🗑️ Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Videos */}
+            <div style={{ background: '#23272b', borderRadius: 16, padding: 24, boxShadow: '0 2px 16px 0 rgba(0,255,255,0.06)' }}>
+              <h4 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16, color: '#fff' }}>🎥 Videos ({allVideos.length})</h4>
+              {allVideos.length === 0 ? (
+                <div style={{ color: '#b3b8c2', textAlign: 'center', padding: 20 }}>No videos found.</div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {allVideos.map((video) => (
+                    <div key={video._id} style={{
+                      background: '#181c20',
+                      borderRadius: 12,
+                      padding: 16,
+                      border: '1px solid #2a2e33',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
+                    }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 700, fontSize: 16, color: '#fff', marginBottom: 4 }}>{video.description}</div>
+                        <div style={{ color: '#b3b8c2', fontSize: 14, marginBottom: 4 }}>
+                          By: {video.author?.name || 'Unknown'} • {video.date ? new Date(video.date).toLocaleDateString() : 'No date'}
+                        </div>
+                        <div style={{ color: '#5eead4', fontSize: 12 }}>URL: {video.url}</div>
+                      </div>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button
+                          onClick={() => openContentEdit(video, 'video')}
+                          style={{
+                            background: '#5eead4',
+                            color: '#181c20',
+                            border: 'none',
+                            borderRadius: 6,
+                            padding: '6px 12px',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            fontSize: 12
+                          }}
+                        >
+                          ✏️ Edit
+                        </button>
+                        <button
+                          onClick={() => handleContentDelete(video, 'video')}
+                          style={{
+                            background: '#ff4d4f',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: 6,
+                            padding: '6px 12px',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            fontSize: 12
+                          }}
+                        >
+                          🗑️ Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Art */}
+            <div style={{ background: '#23272b', borderRadius: 16, padding: 24, boxShadow: '0 2px 16px 0 rgba(0,255,255,0.06)' }}>
+              <h4 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16, color: '#fff' }}>🎨 Art ({allArt.length})</h4>
+              {allArt.length === 0 ? (
+                <div style={{ color: '#b3b8c2', textAlign: 'center', padding: 20 }}>No art found.</div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {allArt.map((art) => (
+                    <div key={art._id} style={{
+                      background: '#181c20',
+                      borderRadius: 12,
+                      padding: 16,
+                      border: '1px solid #2a2e33',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
+                    }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 700, fontSize: 16, color: '#fff', marginBottom: 4 }}>{art.title}</div>
+                        <div style={{ color: '#b3b8c2', fontSize: 14, marginBottom: 4 }}>
+                          By: {art.author?.name || 'Unknown'} • {art.date ? new Date(art.date).toLocaleDateString() : 'No date'}
+                        </div>
+                        <div style={{ color: '#5eead4', fontSize: 12 }}>Image: {art.image}</div>
+                      </div>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button
+                          onClick={() => openContentEdit(art, 'art')}
+                          style={{
+                            background: '#5eead4',
+                            color: '#181c20',
+                            border: 'none',
+                            borderRadius: 6,
+                            padding: '6px 12px',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            fontSize: 12
+                          }}
+                        >
+                          ✏️ Edit
+                        </button>
+                        <button
+                          onClick={() => handleContentDelete(art, 'art')}
+                          style={{
+                            background: '#ff4d4f',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: 6,
+                            padding: '6px 12px',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            fontSize: 12
+                          }}
+                        >
+                          🗑️ Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </main>
       {editingUser && (
         <div style={{
@@ -716,6 +1077,123 @@ export default function AdminDashboard() {
             <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
               <button onClick={handleEditSave} style={{ background: '#5eead4', color: '#181c20', fontWeight: 700, border: 'none', borderRadius: 8, padding: '10px 28px', fontSize: 16, cursor: 'pointer' }}>Save</button>
               <button onClick={closeEdit} style={{ background: '#23272b', color: '#fff', fontWeight: 700, border: '1px solid #5eead4', borderRadius: 8, padding: '10px 28px', fontSize: 16, cursor: 'pointer' }}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Content Edit Modal */}
+      {editingContent && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(0,0,0,0.7)',
+          zIndex: 1000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }} onClick={closeContentEdit}>
+          <div style={{ 
+            background: '#23272b', 
+            borderRadius: 16, 
+            padding: 32, 
+            minWidth: 500, 
+            maxWidth: 600,
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            boxShadow: '0 2px 24px #00ffff', 
+            position: 'relative' 
+          }} onClick={e => e.stopPropagation()}>
+            <h3 style={{ fontSize: 22, fontWeight: 700, marginBottom: 18 }}>
+              Edit {editContentType === 'post' ? 'Blog Post' : editContentType === 'video' ? 'Video' : 'Art'}
+            </h3>
+            
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ fontWeight: 600, fontSize: 15, display: 'block', marginBottom: 4 }}>
+                {editContentType === 'post' ? 'Title' : editContentType === 'video' ? 'Description' : 'Title'}
+              </label>
+              <input 
+                value={editContentData.title} 
+                onChange={e => setEditContentData(prev => ({ ...prev, title: e.target.value }))} 
+                style={{ width: '100%', borderRadius: 8, border: '1px solid #2a2e33', background: '#181c20', color: '#fff', padding: 8, fontSize: 15 }} 
+              />
+            </div>
+            
+            {editContentType === 'post' && (
+              <div style={{ marginBottom: 14 }}>
+                <label style={{ fontWeight: 600, fontSize: 15, display: 'block', marginBottom: 4 }}>Content</label>
+                <textarea 
+                  value={editContentData.content} 
+                  onChange={e => setEditContentData(prev => ({ ...prev, content: e.target.value }))} 
+                  rows={8}
+                  style={{ width: '100%', borderRadius: 8, border: '1px solid #2a2e33', background: '#181c20', color: '#fff', padding: 8, fontSize: 15, resize: 'vertical' }} 
+                />
+              </div>
+            )}
+            
+            {editContentType === 'video' && (
+              <>
+                <div style={{ marginBottom: 14 }}>
+                  <label style={{ fontWeight: 600, fontSize: 15, display: 'block', marginBottom: 4 }}>Description</label>
+                  <textarea 
+                    value={editContentData.description} 
+                    onChange={e => setEditContentData(prev => ({ ...prev, description: e.target.value }))} 
+                    rows={4}
+                    style={{ width: '100%', borderRadius: 8, border: '1px solid #2a2e33', background: '#181c20', color: '#fff', padding: 8, fontSize: 15, resize: 'vertical' }} 
+                  />
+                </div>
+                <div style={{ marginBottom: 14 }}>
+                  <label style={{ fontWeight: 600, fontSize: 15, display: 'block', marginBottom: 4 }}>Video URL</label>
+                  <input 
+                    value={editContentData.url} 
+                    onChange={e => setEditContentData(prev => ({ ...prev, url: e.target.value }))} 
+                    style={{ width: '100%', borderRadius: 8, border: '1px solid #2a2e33', background: '#181c20', color: '#fff', padding: 8, fontSize: 15 }} 
+                  />
+                </div>
+              </>
+            )}
+            
+            {editContentType === 'art' && (
+              <>
+                <div style={{ marginBottom: 14 }}>
+                  <label style={{ fontWeight: 600, fontSize: 15, display: 'block', marginBottom: 4 }}>Description</label>
+                  <textarea 
+                    value={editContentData.description} 
+                    onChange={e => setEditContentData(prev => ({ ...prev, description: e.target.value }))} 
+                    rows={4}
+                    style={{ width: '100%', borderRadius: 8, border: '1px solid #2a2e33', background: '#181c20', color: '#fff', padding: 8, fontSize: 15, resize: 'vertical' }} 
+                  />
+                </div>
+                <div style={{ marginBottom: 14 }}>
+                  <label style={{ fontWeight: 600, fontSize: 15, display: 'block', marginBottom: 4 }}>Image URL</label>
+                  <input 
+                    value={editContentData.image} 
+                    onChange={e => setEditContentData(prev => ({ ...prev, image: e.target.value }))} 
+                    style={{ width: '100%', borderRadius: 8, border: '1px solid #2a2e33', background: '#181c20', color: '#fff', padding: 8, fontSize: 15 }} 
+                  />
+                </div>
+              </>
+            )}
+            
+            {editContentError && <div style={{ color: '#ff4d4f', marginBottom: 10 }}>{editContentError}</div>}
+            {editContentSuccess && <div style={{ color: '#5eead4', marginBottom: 10 }}>{editContentSuccess}</div>}
+            
+            <div style={{ display: 'flex', gap: 12, marginTop: 18 }}>
+              <button 
+                onClick={handleContentEditSave} 
+                style={{ background: '#5eead4', color: '#181c20', fontWeight: 700, border: 'none', borderRadius: 8, padding: '10px 28px', fontSize: 16, cursor: 'pointer' }}
+              >
+                Save
+              </button>
+              <button 
+                onClick={closeContentEdit} 
+                style={{ background: '#23272b', color: '#fff', fontWeight: 700, border: '1px solid #5eead4', borderRadius: 8, padding: '10px 28px', fontSize: 16, cursor: 'pointer' }}
+              >
+                Cancel
+              </button>
             </div>
           </div>
         </div>

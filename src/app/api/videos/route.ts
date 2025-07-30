@@ -47,4 +47,35 @@ export async function DELETE(req: Request) {
   const db = client.db();
   await db.collection("videos").deleteOne({ _id: new (await import('mongodb')).ObjectId(id) });
   return NextResponse.json({ success: true });
+}
+
+export async function PUT(req: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user || session.user.role !== 'admin') {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  
+  const { id, title, description, url } = await req.json();
+  if (!id || !description || !url) {
+    return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+  }
+  
+  const client = await clientPromise;
+  const db = client.db();
+  
+  try {
+    await db.collection("videos").updateOne(
+      { _id: new (await import('mongodb')).ObjectId(id) },
+      { 
+        $set: { 
+          description,
+          url,
+          updatedAt: new Date().toISOString()
+        } 
+      }
+    );
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json({ error: "Failed to update video" }, { status: 500 });
+  }
 } 
