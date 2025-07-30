@@ -1,6 +1,8 @@
 'use client';
 import React from "react";
 import UserImage from "../components/UserImage";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface BlogPost {
   _id: string;
@@ -41,7 +43,33 @@ export default function BlogPostView({ blogPost }: { blogPost: BlogPost }) {
         </div>
       </div>
       <h1 style={{ fontSize: 32, fontWeight: 800, marginBottom: 18 }}>{blogPost.title}</h1>
-      <div style={{ color: '#b3b8c2', fontSize: 18, lineHeight: 1.7 }}>{blogPost.content}</div>
+      <div style={{ color: '#b3b8c2', fontSize: 18, lineHeight: 1.7 }}>
+        <ReactMarkdown 
+          remarkPlugins={[remarkGfm]}
+          components={{
+            h1: ({children}) => <h1 style={{fontSize: 28, fontWeight: 700, marginBottom: 16, marginTop: 24, color: '#fff'}}>{children}</h1>,
+            h2: ({children}) => <h2 style={{fontSize: 24, fontWeight: 600, marginBottom: 14, marginTop: 20, color: '#fff'}}>{children}</h2>,
+            h3: ({children}) => <h3 style={{fontSize: 20, fontWeight: 600, marginBottom: 12, marginTop: 18, color: '#fff'}}>{children}</h3>,
+            h4: ({children}) => <h4 style={{fontSize: 18, fontWeight: 600, marginBottom: 10, marginTop: 16, color: '#fff'}}>{children}</h4>,
+            p: ({children}) => <p style={{marginBottom: 16, color: '#b3b8c2'}}>{children}</p>,
+            strong: ({children}) => <strong style={{color: '#fff', fontWeight: 600}}>{children}</strong>,
+            em: ({children}) => <em style={{color: '#5eead4', fontStyle: 'italic'}}>{children}</em>,
+            code: ({children}) => <code style={{background: '#2a2e33', padding: '3px 6px', borderRadius: 4, fontSize: 16, color: '#5eead4', fontFamily: 'monospace'}}>{children}</code>,
+            pre: ({children}) => <pre style={{background: '#2a2e33', padding: 16, borderRadius: 8, overflowX: 'auto', marginBottom: 16, fontSize: 14, color: '#5eead4', fontFamily: 'monospace'}}>{children}</pre>,
+            blockquote: ({children}) => <blockquote style={{borderLeft: '4px solid #5eead4', paddingLeft: 20, marginBottom: 16, color: '#b3b8c2', fontStyle: 'italic'}}>{children}</blockquote>,
+            ul: ({children}) => <ul style={{marginBottom: 16, paddingLeft: 24, color: '#b3b8c2'}}>{children}</ul>,
+            ol: ({children}) => <ol style={{marginBottom: 16, paddingLeft: 24, color: '#b3b8c2'}}>{children}</ol>,
+            li: ({children}) => <li style={{marginBottom: 6, color: '#b3b8c2'}}>{children}</li>,
+            a: ({children, href}) => <a href={href} style={{color: '#5eead4', textDecoration: 'underline'}} target="_blank" rel="noopener noreferrer">{children}</a>,
+            table: ({children}) => <table style={{borderCollapse: 'collapse', width: '100%', marginBottom: 16}}>{children}</table>,
+            th: ({children}) => <th style={{border: '1px solid #2a2e33', padding: '8px 12px', textAlign: 'left', background: '#2a2e33', color: '#fff', fontWeight: 600}}>{children}</th>,
+            td: ({children}) => <td style={{border: '1px solid #2a2e33', padding: '8px 12px', color: '#b3b8c2'}}>{children}</td>,
+            hr: () => <hr style={{border: 'none', borderTop: '1px solid #2a2e33', margin: '24px 0'}} />,
+          }}
+        >
+          {blogPost.content || ''}
+        </ReactMarkdown>
+      </div>
     </article>
   );
 } 

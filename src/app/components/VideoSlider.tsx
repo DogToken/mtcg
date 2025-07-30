@@ -68,6 +68,8 @@ export default function VideoSlider({ videos }: { videos: Video[] }) {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
+              minHeight: '280px',
+              justifyContent: 'space-between',
             }}
           >
             {getEmbedUrl(video.url) ? (
@@ -84,7 +86,21 @@ export default function VideoSlider({ videos }: { videos: Video[] }) {
             ) : (
               <div style={{ color: '#ff4d4f', marginBottom: 8 }}>Invalid YouTube URL</div>
             )}
-            <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 6 }}>{video.description}</div>
+            <div style={{ 
+              fontWeight: 700, 
+              fontSize: 16, 
+              marginBottom: 6,
+              maxHeight: '60px',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              display: '-webkit-box',
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: 'vertical',
+              lineHeight: '1.2',
+              wordBreak: 'break-word'
+            }}>
+              {video.description}
+            </div>
             <div style={{ color: '#b3b8c2', fontSize: 14 }}>{video.date ? new Date(video.date).toLocaleDateString() : ''}</div>
             <div style={{ color: '#fff', fontWeight: 500, fontSize: 14 }}>{video.author?.name || ''}</div>
           </div>

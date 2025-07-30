@@ -4,6 +4,25 @@ import Header from "../components/Header";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import UserImage from "../components/UserImage";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+
+// Helper function to strip markdown for previews
+const stripMarkdown = (text: string): string => {
+  return text
+    .replace(/^### (.*$)/gim, '$1') // Remove headers
+    .replace(/^## (.*$)/gim, '$1')
+    .replace(/^# (.*$)/gim, '$1')
+    .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold
+    .replace(/\*(.*?)\*/g, '$1') // Remove italic
+    .replace(/`(.*?)`/g, '$1') // Remove inline code
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Remove links
+    .replace(/^\s*[-*+]\s+/gm, '') // Remove list markers
+    .replace(/^\s*\d+\.\s+/gm, '') // Remove numbered list markers
+    .replace(/^\s*>\s+/gm, '') // Remove blockquotes
+    .replace(/\n+/g, ' ') // Replace multiple newlines with space
+    .trim();
+};
 
 // Add BlogPost type
 interface BlogPost {
@@ -53,6 +72,8 @@ export default function DashboardPage() {
   const [body, setBody] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [useMarkdown, setUseMarkdown] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const [selectedSection, setSelectedSection] = useState("Blog");
   const [selectedBlogTab, setSelectedBlogTab] = useState<'Post' | 'MyPosts'>('Post');
   const [myPosts, setMyPosts] = useState<BlogPost[]>([]);
@@ -306,6 +327,38 @@ export default function DashboardPage() {
               {selectedBlogTab === 'Post' && (
                 <>
                   <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 18 }}>Post a Blog</h2>
+                  
+                  {/* Markdown Toggle */}
+                  <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={useMarkdown}
+                        onChange={e => setUseMarkdown(e.target.checked)}
+                        style={{ width: 16, height: 16 }}
+                      />
+                      <span style={{ color: '#fff', fontSize: 14 }}>Use Markdown</span>
+                    </label>
+                    {useMarkdown && (
+                      <button
+                        type="button"
+                        onClick={() => setShowPreview(!showPreview)}
+                        style={{
+                          background: showPreview ? '#5eead4' : '#2a2e33',
+                          color: showPreview ? '#181c20' : '#fff',
+                          border: 'none',
+                          borderRadius: 6,
+                          padding: '6px 12px',
+                          fontSize: 12,
+                          cursor: 'pointer',
+                          fontWeight: 600
+                        }}
+                      >
+                        {showPreview ? 'Edit' : 'Preview'}
+                      </button>
+                    )}
+                  </div>
+
                   <form className="login-form" onSubmit={handlePost}>
                     <input
                       type="text"
@@ -330,16 +383,74 @@ export default function DashboardPage() {
                       onChange={e => setSlug(e.target.value)}
                       required
                     />
-                    <textarea
-                      placeholder="Body"
-                      className="login-input"
-                      style={{ minHeight: 120, resize: 'vertical' }}
-                      value={body}
-                      onChange={e => setBody(e.target.value)}
-                      required
-                    />
+                    
+                    {useMarkdown && showPreview ? (
+                      <div style={{
+                        background: '#181c20',
+                        border: '1px solid #2a2e33',
+                        borderRadius: 8,
+                        padding: 16,
+                        minHeight: 200,
+                        maxHeight: 400,
+                        overflowY: 'auto',
+                        color: '#fff',
+                        lineHeight: 1.6
+                      }}>
+                        <ReactMarkdown 
+                          remarkPlugins={[remarkGfm]}
+                          components={{
+                            h1: ({children}) => <h1 style={{fontSize: 24, fontWeight: 700, marginBottom: 16, color: '#fff'}}>{children}</h1>,
+                            h2: ({children}) => <h2 style={{fontSize: 20, fontWeight: 600, marginBottom: 12, color: '#fff'}}>{children}</h2>,
+                            h3: ({children}) => <h3 style={{fontSize: 18, fontWeight: 600, marginBottom: 10, color: '#fff'}}>{children}</h3>,
+                            p: ({children}) => <p style={{marginBottom: 12, color: '#b3b8c2'}}>{children}</p>,
+                            strong: ({children}) => <strong style={{color: '#fff', fontWeight: 600}}>{children}</strong>,
+                            em: ({children}) => <em style={{color: '#5eead4', fontStyle: 'italic'}}>{children}</em>,
+                            code: ({children}) => <code style={{background: '#2a2e33', padding: '2px 6px', borderRadius: 4, fontSize: 14, color: '#5eead4'}}>{children}</code>,
+                            pre: ({children}) => <pre style={{background: '#2a2e33', padding: 12, borderRadius: 6, overflowX: 'auto', marginBottom: 12}}>{children}</pre>,
+                            blockquote: ({children}) => <blockquote style={{borderLeft: '4px solid #5eead4', paddingLeft: 16, marginBottom: 12, color: '#b3b8c2'}}>{children}</blockquote>,
+                            ul: ({children}) => <ul style={{marginBottom: 12, paddingLeft: 20}}>{children}</ul>,
+                            ol: ({children}) => <ol style={{marginBottom: 12, paddingLeft: 20}}>{children}</ol>,
+                            li: ({children}) => <li style={{marginBottom: 4, color: '#b3b8c2'}}>{children}</li>,
+                            a: ({children, href}) => <a href={href} style={{color: '#5eead4', textDecoration: 'underline'}} target="_blank" rel="noopener noreferrer">{children}</a>,
+                          }}
+                        >
+                          {body}
+                        </ReactMarkdown>
+                      </div>
+                    ) : (
+                      <textarea
+                        placeholder={useMarkdown ? "Body (Markdown supported)" : "Body"}
+                        className="login-input"
+                        style={{ minHeight: 200, resize: 'vertical' }}
+                        value={body}
+                        onChange={e => setBody(e.target.value)}
+                        required
+                      />
+                    )}
+                    
                     <button type="submit" className="login-btn">Post</button>
                   </form>
+                  
+                  {useMarkdown && (
+                    <div style={{ 
+                      background: '#181c20', 
+                      border: '1px solid #2a2e33', 
+                      borderRadius: 8, 
+                      padding: 12, 
+                      marginTop: 12,
+                      fontSize: 12,
+                      color: '#b3b8c2'
+                    }}>
+                      <strong style={{color: '#5eead4'}}>Markdown Tips:</strong><br/>
+                      • <code style={{background: '#2a2e33', padding: '1px 4px', borderRadius: 3}}>**bold**</code> for <strong>bold text</strong><br/>
+                      • <code style={{background: '#2a2e33', padding: '1px 4px', borderRadius: 3}}>*italic*</code> for <em>italic text</em><br/>
+                      • <code style={{background: '#2a2e33', padding: '1px 4px', borderRadius: 3}}># Heading</code> for headings<br/>
+                      • <code style={{background: '#2a2e33', padding: '1px 4px', borderRadius: 3}}>[link](url)</code> for links<br/>
+                      • <code style={{background: '#2a2e33', padding: '1px 4px', borderRadius: 3}}>`code`</code> for inline code<br/>
+                      • <code style={{background: '#2a2e33', padding: '1px 4px', borderRadius: 3}}>```</code> for code blocks
+                    </div>
+                  )}
+                  
                   {error && <div style={{ color: '#ff4d4f', marginTop: 12, textAlign: 'center' }}>{error}</div>}
                   {success && <div style={{ color: '#5eead4', marginTop: 12, textAlign: 'center' }}>{success}</div>}
                 </>
@@ -366,7 +477,9 @@ export default function DashboardPage() {
                           <div style={{ flex: 1 }}>
                             <div style={{ fontWeight: 700, fontSize: 18 }}>{post.title}</div>
                             <div style={{ color: '#b3b8c2', fontSize: 15 }}>{post.date ? new Date(post.date).toLocaleDateString() : ''}</div>
-                            <div style={{ color: '#b3b8c2', fontSize: 15, marginTop: 6 }}>{post.excerpt || (post.content ? post.content.slice(0, 100) + (post.content.length > 100 ? '...' : '') : '')}</div>
+                            <div style={{ color: '#b3b8c2', fontSize: 15, marginTop: 6 }}>
+                              {post.excerpt || (post.content ? stripMarkdown(post.content).slice(0, 100) + (stripMarkdown(post.content).length > 100 ? '...' : '') : '')}
+                            </div>
                           </div>
                           <button
                             onClick={() => handleDeletePost(post._id)}
@@ -476,7 +589,21 @@ export default function DashboardPage() {
                           <div style={{ flex: 1 }}>
                             <div style={{ fontWeight: 700, fontSize: 18 }}>{video.url}</div>
                             <div style={{ color: '#b3b8c2', fontSize: 15 }}>{video.date ? new Date(video.date).toLocaleDateString() : ''}</div>
-                            <div style={{ color: '#b3b8c2', fontSize: 15, marginTop: 6 }}>{video.description}</div>
+                            <div style={{ 
+                              color: '#b3b8c2', 
+                              fontSize: 15, 
+                              marginTop: 6,
+                              maxHeight: '60px',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              display: '-webkit-box',
+                              WebkitLineClamp: 3,
+                              WebkitBoxOrient: 'vertical',
+                              lineHeight: '1.2',
+                              wordBreak: 'break-word'
+                            }}>
+                              {video.description}
+                            </div>
                           </div>
                           <button
                             onClick={() => handleDeleteVideo(video._id)}

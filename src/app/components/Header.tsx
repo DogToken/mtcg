@@ -71,11 +71,11 @@ export default function Header({ editableHeader }: HeaderProps) {
       }
     }
     if (dropdownOpen) {
-      document.addEventListener("mousedown", handleClick);
+      document.addEventListener("click", handleClick);
     } else {
-      document.removeEventListener("mousedown", handleClick);
+      document.removeEventListener("click", handleClick);
     }
-    return () => document.removeEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("click", handleClick);
   }, [dropdownOpen]);
 
   return (

@@ -3,6 +3,23 @@ import React from "react";
 import Link from "next/link";
 import UserImage from "../components/UserImage";
 
+// Helper function to strip markdown for previews
+const stripMarkdown = (text: string): string => {
+  return text
+    .replace(/^### (.*$)/gim, '$1') // Remove headers
+    .replace(/^## (.*$)/gim, '$1')
+    .replace(/^# (.*$)/gim, '$1')
+    .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold
+    .replace(/\*(.*?)\*/g, '$1') // Remove italic
+    .replace(/`(.*?)`/g, '$1') // Remove inline code
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Remove links
+    .replace(/^\s*[-*+]\s+/gm, '') // Remove list markers
+    .replace(/^\s*\d+\.\s+/gm, '') // Remove numbered list markers
+    .replace(/^\s*>\s+/gm, '') // Remove blockquotes
+    .replace(/\n+/g, ' ') // Replace multiple newlines with space
+    .trim();
+};
+
 interface BlogPost {
   _id: string;
   title: string;
@@ -46,7 +63,9 @@ export default function BlogList({ posts }: { posts: BlogPost[] }) {
               <span style={{ fontWeight: 700, fontSize: 20 }}>{post.title}</span>
               <span style={{ color: '#5eead4', fontSize: 14, fontWeight: 500, marginLeft: 8 }}>{post.date ? new Date(post.date).toLocaleDateString() : ""}</span>
             </div>
-            <div style={{ color: '#b3b8c2', fontSize: 16, marginBottom: 8 }}>{post.excerpt || (post.content ? post.content.slice(0, 120) + (post.content && post.content.length > 120 ? '...' : '') : '')}</div>
+            <div style={{ color: '#b3b8c2', fontSize: 16, marginBottom: 8 }}>
+              {post.excerpt || (post.content ? stripMarkdown(post.content).slice(0, 120) + (stripMarkdown(post.content).length > 120 ? '...' : '') : '')}
+            </div>
             <div style={{ color: '#fff', fontWeight: 600, fontSize: 15 }}>{post.author?.name || "User"}</div>
           </div>
         </Link>

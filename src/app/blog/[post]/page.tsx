@@ -6,7 +6,10 @@ import BlogPostView from "../BlogPostView";
 async function getPostByPost(post: string) {
   const client = await clientPromise;
   const db = client.db();
-  const result = await db.collection("posts").findOne({ slug: post });
+  const result = await db.collection("posts").findOne({ 
+    slug: post,
+    deleted: { $ne: true } // Exclude posts marked as deleted
+  });
   return result;
 }
 

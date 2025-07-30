@@ -27,6 +27,27 @@ export default function VideosPage() {
   const [loading, setLoading] = useState(true);
   const [modalVideo, setModalVideo] = useState<Video | null>(null);
 
+  // Add responsive styles for the modal
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      @media (max-width: 768px) {
+        .video-modal-content {
+          flex-direction: column !important;
+        }
+        .video-modal-content .video-section {
+          width: 100% !important;
+        }
+        .video-modal-content .text-section {
+          width: 100% !important;
+          max-height: 200px !important;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => document.head.removeChild(style);
+  }, []);
+
   useEffect(() => {
     fetch('/api/videos')
       .then(res => res.json())
@@ -136,25 +157,68 @@ export default function VideosPage() {
           }}
             onClick={() => setModalVideo(null)}
           >
-            <div style={{ background: '#23272b', borderRadius: 18, padding: 32, boxShadow: '0 2px 32px 0 rgba(0,255,255,0.10)', maxWidth: 700, width: '90vw', position: 'relative' }} onClick={e => e.stopPropagation()}>
-              <button onClick={() => setModalVideo(null)} style={{ position: 'absolute', top: 18, right: 18, background: 'none', border: 'none', color: '#fff', fontSize: 28, cursor: 'pointer' }}>&times;</button>
-              {getEmbedUrl(modalVideo.url) ? (
-                <iframe
-                  width="100%"
-                  height="400"
-                  src={getEmbedUrl(modalVideo.url) as string}
-                  title={modalVideo.description}
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  style={{ borderRadius: 12, marginBottom: 18 }}
-                />
-              ) : (
-                <div style={{ color: '#ff4d4f', marginBottom: 8 }}>Invalid YouTube URL</div>
-              )}
-              <div style={{ fontWeight: 700, fontSize: 22, marginBottom: 10 }}>{modalVideo.description}</div>
-              <div style={{ color: '#b3b8c2', fontSize: 16 }}>{modalVideo.date ? new Date(modalVideo.date).toLocaleDateString() : ''}</div>
-              <div style={{ color: '#fff', fontWeight: 500, fontSize: 16 }}>{modalVideo.author?.name || ''}</div>
+            <div 
+              className="video-modal-content"
+              style={{ 
+                background: '#23272b', 
+                borderRadius: 18, 
+                padding: 32, 
+                boxShadow: '0 2px 32px 0 rgba(0,255,255,0.10)', 
+                maxWidth: 1000, 
+                width: '95vw', 
+                maxHeight: '90vh',
+                position: 'relative',
+                display: 'flex',
+                flexDirection: 'row',
+                gap: 24,
+                alignItems: 'flex-start'
+              }} 
+              onClick={e => e.stopPropagation()}
+            >
+              <button onClick={() => setModalVideo(null)} style={{ position: 'absolute', top: 18, right: 18, background: 'none', border: 'none', color: '#fff', fontSize: 28, cursor: 'pointer', zIndex: 10 }}>&times;</button>
+              
+              {/* Video Section - Left Side */}
+              <div className="video-section" style={{ flex: '1', minWidth: 0 }}>
+                {getEmbedUrl(modalVideo.url) ? (
+                  <iframe
+                    width="100%"
+                    height="400"
+                    src={getEmbedUrl(modalVideo.url) as string}
+                    title={modalVideo.description}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    style={{ borderRadius: 12, width: '100%' }}
+                  />
+                ) : (
+                  <div style={{ color: '#ff4d4f', marginBottom: 8 }}>Invalid YouTube URL</div>
+                )}
+              </div>
+              
+              {/* Text Section - Right Side */}
+              <div className="text-section" style={{ 
+                flex: '1', 
+                minWidth: 0,
+                maxHeight: '400px',
+                overflowY: 'auto',
+                paddingRight: 8
+              }}>
+                <div style={{ 
+                  fontWeight: 700, 
+                  fontSize: 22, 
+                  marginBottom: 16,
+                  lineHeight: '1.3',
+                  wordBreak: 'break-word'
+                }}>
+                  {modalVideo.description}
+                </div>
+                <div style={{ color: '#b3b8c2', fontSize: 16, marginBottom: 8 }}>
+                  {modalVideo.date ? new Date(modalVideo.date).toLocaleDateString() : ''}
+                </div>
+                <div style={{ color: '#fff', fontWeight: 500, fontSize: 16 }}>
+                  {modalVideo.author?.name || ''}
+                </div>
+              </div>
             </div>
           </div>
         )}

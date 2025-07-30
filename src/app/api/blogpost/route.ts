@@ -41,10 +41,15 @@ export async function GET(req: Request) {
   const db = client.db();
   if (!authorEmail) {
     // Return latest 5 posts for homepage
-    const posts = await db.collection("posts").find({}).sort({ _id: -1 }).limit(5).toArray();
+    const posts = await db.collection("posts").find({ 
+      deleted: { $ne: true } // Exclude deleted posts
+    }).sort({ _id: -1 }).limit(5).toArray();
     return NextResponse.json({ posts });
   }
-  const posts = await db.collection("posts").find({ "author.email": authorEmail }).sort({ date: -1 }).toArray();
+  const posts = await db.collection("posts").find({ 
+    "author.email": authorEmail,
+    deleted: { $ne: true } // Exclude deleted posts
+  }).sort({ date: -1 }).toArray();
   return NextResponse.json({ posts });
 }
 
@@ -54,6 +59,16 @@ export async function DELETE(req: Request) {
   if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 });
   const client = await clientPromise;
   const db = client.db();
-  await db.collection("posts").deleteOne({ _id: new (await import('mongodb')).ObjectId(id) });
+  
+  // Use soft delete instead of hard delete
+  await db.collection("posts").updateOne(
+    { _id: new (await import('mongodb')).ObjectId(id) },
+    { 
+      $set: { 
+        deleted: true,
+        deletedAt: new Date().toISOString()
+      } 
+    }
+  );
   return NextResponse.json({ success: true });
 } 

@@ -21,18 +21,23 @@ interface BlogPost {
 async function getPosts(): Promise<BlogPost[]> {
   const client = await clientPromise;
   const db = client.db();
-  // Fetch all posts, newest first
-  const posts = await db.collection("posts").find({}).sort({ date: -1 }).toArray();
-  // Map to BlogPost type
-  return posts.map((post: Document) => ({
-    _id: post._id.toString(),
-    title: post.title,
-    slug: post.slug,
-    excerpt: post.excerpt,
-    content: post.content,
-    date: post.date,
-    author: post.author,
-  }));
+  // Fetch all posts, newest first, excluding deleted posts
+  const posts = await db.collection("posts").find({ 
+    deleted: { $ne: true } // Exclude posts marked as deleted
+  }).sort({ date: -1 }).toArray();
+  
+  // Map to BlogPost type and filter out any invalid posts
+  return posts
+    .filter((post: Document) => post && post.title && post.slug) // Basic validation
+    .map((post: Document) => ({
+      _id: post._id.toString(),
+      title: post.title,
+      slug: post.slug,
+      excerpt: post.excerpt,
+      content: post.content,
+      date: post.date,
+      author: post.author,
+    }));
 }
 
 export default async function BlogPage() {

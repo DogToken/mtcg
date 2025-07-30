@@ -1,6 +1,23 @@
 'use client';
 import React, { useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+
+// Helper function to strip markdown for previews
+const stripMarkdown = (text: string): string => {
+  return text
+    .replace(/^### (.*$)/gim, '$1') // Remove headers
+    .replace(/^## (.*$)/gim, '$1')
+    .replace(/^# (.*$)/gim, '$1')
+    .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold
+    .replace(/\*(.*?)\*/g, '$1') // Remove italic
+    .replace(/`(.*?)`/g, '$1') // Remove inline code
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Remove links
+    .replace(/^\s*[-*+]\s+/gm, '') // Remove list markers
+    .replace(/^\s*\d+\.\s+/gm, '') // Remove numbered list markers
+    .replace(/^\s*>\s+/gm, '') // Remove blockquotes
+    .replace(/\n+/g, ' ') // Replace multiple newlines with space
+    .trim();
+};
 
 interface BlogPost {
   _id: string;
@@ -17,7 +34,6 @@ interface BlogPost {
 
 export default function BlogSlider({ posts }: { posts: BlogPost[] }) {
   const [active, setActive] = useState(0);
-  const router = useRouter();
   const sliderRef = useRef<HTMLDivElement>(null);
 
   const handleDotClick = (idx: number) => {
@@ -47,8 +63,9 @@ export default function BlogSlider({ posts }: { posts: BlogPost[] }) {
         }}
       >
         {posts.map((post, idx) => (
-          <div
+          <Link
             key={post._id}
+            href={`/blog/${post.slug}`}
             style={{
               minWidth: 300,
               maxWidth: 320,
@@ -61,12 +78,16 @@ export default function BlogSlider({ posts }: { posts: BlogPost[] }) {
               scrollSnapAlign: 'start',
               transition: 'box-shadow 0.2s',
               border: active === idx ? '2px solid #5eead4' : '2px solid transparent',
+              textDecoration: 'none',
+              color: 'inherit',
+              display: 'block',
             }}
-            onClick={() => router.push(`/blog/${post.slug}`)}
           >
             <div style={{ fontWeight: 700, fontSize: 20, marginBottom: 8 }}>{post.title}</div>
             <div style={{ color: '#5eead4', fontSize: 14, fontWeight: 500, marginBottom: 8 }}>{post.date ? new Date(post.date).toLocaleDateString() : ''}</div>
-            <div style={{ color: '#b3b8c2', fontSize: 16, marginBottom: 8 }}>{post.excerpt || (post.content ? post.content.slice(0, 100) + (post.content.length > 100 ? '...' : '') : '')}</div>
+            <div style={{ color: '#b3b8c2', fontSize: 16, marginBottom: 8 }}>
+              {post.excerpt || (post.content ? stripMarkdown(post.content).slice(0, 100) + (stripMarkdown(post.content).length > 100 ? '...' : '') : '')}
+            </div>
             {post.author?.name ? (
               <a
                 href={`/profile/${encodeURIComponent(post.author.name)}`}
@@ -78,7 +99,7 @@ export default function BlogSlider({ posts }: { posts: BlogPost[] }) {
             ) : (
               <div style={{ color: '#fff', fontWeight: 600, fontSize: 15 }}>User</div>
             )}
-          </div>
+          </Link>
         ))}
       </div>
       <div style={{ display: 'flex', justifyContent: 'center', gap: 10, marginTop: 12 }}>
