@@ -133,12 +133,25 @@ export default function Header({ editableHeader }: HeaderProps) {
         marginBottom: 32,
         position: 'relative',
       }}>
-        <Link href="/" className="logo-link" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <button 
+          onClick={() => window.location.href = '/'}
+          className="logo-link" 
+          style={{ 
+            textDecoration: 'none', 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 12,
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            fontFamily: 'inherit'
+          }}
+        >
           {logoUrl && <img src={logoUrl} alt="Logo" style={{ width: 40, height: 40, borderRadius: 8, background: '#fff', border: '1px solid #5eead4' }} />}
           <div style={{ fontWeight: 700, fontSize: 28, letterSpacing: '-0.03em', color: 'inherit' }}>
             {headerText}
           </div>
-        </Link>
+        </button>
         {editableHeader && user?.role === 'admin' && (
           <button
             onClick={() => setShowEditModal(true)}
@@ -151,7 +164,10 @@ export default function Header({ editableHeader }: HeaderProps) {
           {navItems.map((item) => (
             <button
               key={item}
-              onClick={() => router.push(item === "Home" ? "/" : `/${item.toLowerCase()}`)}
+              onClick={() => {
+                const href = item === "Home" ? "/" : `/${item.toLowerCase()}`;
+                window.location.href = href;
+              }}
               className={item === "Home" ? "nav-link nav-link-home" : "nav-link"}
               style={{
                 background: 'none',
@@ -196,8 +212,8 @@ export default function Header({ editableHeader }: HeaderProps) {
                 }}>
                   <button
                     onClick={() => {
-                      router.push('/dashboard');
-                      setTimeout(() => setDropdownOpen(false), 100);
+                      window.location.href = '/dashboard';
+                      setDropdownOpen(false);
                     }}
                     style={{ 
                       padding: '12px 18px', 
@@ -219,8 +235,8 @@ export default function Header({ editableHeader }: HeaderProps) {
                   </button>
                   <button
                     onClick={() => {
-                      router.push('/settings');
-                      setTimeout(() => setDropdownOpen(false), 100);
+                      window.location.href = '/settings';
+                      setDropdownOpen(false);
                     }}
                     style={{ 
                       padding: '12px 18px', 
@@ -243,8 +259,8 @@ export default function Header({ editableHeader }: HeaderProps) {
                   {user?.role === 'admin' && (
                     <button
                       onClick={() => {
-                        router.push('/dashboard/admin');
-                        setTimeout(() => setDropdownOpen(false), 100);
+                        window.location.href = '/dashboard/admin';
+                        setDropdownOpen(false);
                       }}
                       style={{ 
                         padding: '12px 18px', 
@@ -274,9 +290,11 @@ export default function Header({ editableHeader }: HeaderProps) {
                       border: 'none',
                       textAlign: 'left',
                       fontWeight: 500,
+                      fontSize: 18,
                       borderRadius: 8,
                       cursor: 'pointer',
                       transition: 'background 0.2s',
+                      fontFamily: 'inherit'
                     }}
                   >
                     Logout
@@ -285,7 +303,18 @@ export default function Header({ editableHeader }: HeaderProps) {
               )}
             </div>
           ) : (
-            <Link href="/login" className="nav-link">Login</Link>
+            <button 
+              onClick={() => window.location.href = '/login'}
+              className="nav-link"
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                fontFamily: 'inherit'
+              }}
+            >
+              Login
+            </button>
           )}
         </nav>
       </header>
