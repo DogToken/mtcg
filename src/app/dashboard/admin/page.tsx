@@ -89,6 +89,7 @@ export default function AdminDashboard() {
     description?: string;
     url?: string;
     image?: string;
+    slug?: string;
     author?: {
       name?: string;
       email?: string;
